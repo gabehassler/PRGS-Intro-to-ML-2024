@@ -21,6 +21,7 @@ Before class on Wednesday, October 9, I would like you to:
     * If you are using Quarto, you can use the [Quarto Quick Start Guide](https://quarto.org/docs/get-started/) to get started.
 * Create a GitHub account
 * Create a GitHub repository for this class
+    * You'll want to initialize the repository with a README file (this is one of the options when you create the repository)
     * Either make sure your repository is public or add [me](https://github.com/gabehassler) as a collaborator
     * You may name your repository whatever you like, but I recommend something like "PRGS-Intro-to-ML-2024"
 * Add the link to your GitHub repository in this [Excel sheet](https://randus.sharepoint.com/sites/560IntroductiontoMachineLearningAY2024-25FallQuarter/Shared%20Documents/General/Miscellaneous/GitHub%20Repos.xlsx?d=w4f2c7ccb42bb4dceb0a204f7d8a6903e&csf=1&web=1&e=VVSDp7) on the class Teams page.
