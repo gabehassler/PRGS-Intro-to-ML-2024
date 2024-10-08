@@ -1,0 +1,88 @@
+---
+title: "Homework 2"
+format: html
+---
+
+__Due Date:__ 2022-10-16 at 8:30 AM PT
+---
+
+
+__Name:__ \<your name here\>
+
+
+
+For this assignment, you will practice downloadings, cleaning, and analyzing data from the [National Risk Index (NRI)](https://hazards.fema.gov/nri/) and the [CDC Social Vulnerability Index (SVI)](https://www.atsdr.cdc.gov/placeandhealth/svi/index.html).
+
+## Preparation
+
+1. Create a 'data' folder in the root directory of this repository.
+1. Inside the 'data' folder, create a 'raw' folder.
+1. Add and commit a '.gitignore' file to the root directory of this repository that excludes all contents of the 'data' folder.
+1. Download the county-level NRI and SVI data for the entire United States. Place the data in the 'data/raw' folder.
+1. In the repository README, provide a brief (1-2 sentence) description of each file in the 'data' folder and a link to the original source of the data.
+
+## Task 1 - NRI Data Cleaning
+
+__1. Import the NRI data. Ensure that the [FIPS code](https://en.wikipedia.org/wiki/Federal_Information_Processing_Standard_state_code) variable ('STCOFIPS') is correctly identified as a string / character variable. Otherwise, the leading zeros will be removed.__
+
+```
+# your code here
+```
+
+__2. Subset the NRI data to include only the 5-digit state/county FIPS code and all colums ending with '\_AFREQ' and '\_RISKR'. Each of these columns represents a different hazard type.__
+
+```
+# your code here
+```
+__3. Create a table / dataframe that, for each hazard type, shows the number of missing values in the '\_AFREQ' and '\_RISKR' columns.__
+```
+# your code here
+```
+__4. Show the cross-tabulation of the 'AVLN_AFREQ' and 'AVLN_RISKR' columns (including missing values). What do you observe?__
+```
+# your code here
+```
+__5. Assuming that a risk that is "not applicable" to a county has an annualized frequency of 0, impute the relevant missing values in the '\_AFREQ' columns with 0.__
+```
+# your code here
+```
+
+
+## Task 2 - SVI Data Cleaning
+
+__1. Import the SVI data. Ensure that the FIPS code is correctly identified as a string / character variable. Otherwise, the leading zeros will be removed.__
+__1. Subset the SVI data to include only the following columns:__
+`ST, STATE, ST_ABBR, STCNTY, COUNTY, FIPS, LOCATION, AREA_SQMI, E_TOTPOP, EP_POV150, EP_UNEMP, EP_HBURD, EP_NOHSDP, EP_UNINSUR, EP_AGE65, EP_AGE17, EP_DISABL, EP_SNGPNT, EP_LIMENG, EP_MINRTY, EP_MUNIT, EP_MOBILE, EP_CROWD, EP_NOVEH, EP_GROUPQ, EP_NOINT, EP_AFAM, EP_HISP, EP_ASIAN, EP_AIAN, EP_NHPI, EP_TWOMORE, EP_OTHERRACE`
+```
+# your code here
+```
+__2. Create a table / dataframe that shows the number of missing values in each column.
+(Hint: if you wrote a function for Task 1, you can reuse it here.)__
+
+```
+# your code here
+```
+
+## Task 3 - Data Merging
+__1. Identify any FIPS codes that are present in the NRI data but not in the SVI data and vice versa. Describe any discrepancies and possible causes? What to these discrepancies, if any, mean for interpreting results based on the merged dataset moving forward?__
+```
+# your code here
+```
+__2. Merge the NRI and SVI data on the FIPS code. Use an outer join to keep all counties in the final dataset.__
+```
+# your code here
+```
+__3. Create a table / dataframe that shows the number of missing values in each column of the merged dataset.__
+
+```
+# your code here
+```
+
+## Task 4 - Data Analysis
+
+__1. For each numerical variable in the merged dataset, plot a histogram showing the distribution of values.
+(Hint: write a function to make the histogram for a single variable, then use a loop or apply function to make the histograms for all numerical variables.)__
+
+```
+# your code here
+```
