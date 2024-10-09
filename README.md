@@ -27,7 +27,7 @@ Before class on Wednesday, October 9, I would like you to:
 * Add the link to your GitHub repository in this [Excel sheet](https://randus.sharepoint.com/sites/560IntroductiontoMachineLearningAY2024-25FallQuarter/Shared%20Documents/General/Miscellaneous/GitHub%20Repos.xlsx?d=w4f2c7ccb42bb4dceb0a204f7d8a6903e&csf=1&web=1&e=VVSDp7) on the class Teams page.
 
 
-## Homework - IGNORE THIS FOR NOW
+## Homework
 
 I will post homework assignments in the _homework_ folder of this GitHub repository (repo).
 Each of you will have your own repository where you will store your code for this class and submit your homework.
