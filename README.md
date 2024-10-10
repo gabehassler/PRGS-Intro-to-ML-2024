@@ -44,7 +44,7 @@ Each of you will have your own repository where you will store your code for thi
 Each week:
 
 1. Check out the 'develop' branch of your repo.
-2. Create a notebook file (either Jupyter, R Markdown, or Quarto) in your 'homework' folder with file header "HW_XX" where "XX" is the homework number.
+2. Create a notebook file (either Jupyter, R Markdown, or Quarto) in your 'homework' folder with file header "HW_XX" where "XX" is the homework number. You should be able to compile this document to an HTML file.
     * For example, if you use Jupyter, then you would create a file called "HW_01.ipynb" for the first homework assignment.
     * I will typically post the homework as a Quarto markdown document ('.qmd'). You may use that document directly as a starting point. If your are using another document format, make sure that all instructions are included with your final submission.
 4. Commit the initial version of your notebook to the 'develop' branch.
@@ -52,7 +52,7 @@ Each week:
     * For longer assignments, I recommend committing your work periodically to the 'develop' branch.
     * Don't commit the HTML output in your develop branch.
 6. Merge the 'develop' branch into the 'main' branch.
-7. Commit the compiled HTML notebook output to the 'main' branch.
-8. Push your changes to your GitHub repo.
+8. Output the results of your notebook to an .html file and commit that .html file to the 'main' branch.
+9. Push your changes to your GitHub repo.
 
 
