@@ -46,7 +46,7 @@ Each week:
 1. Check out the 'develop' branch of your repo.
 2. Create a notebook file (either Jupyter, R Markdown, or Quarto) in your 'homework' folder with file header "HW_XX" where "XX" is the homework number.
     * For example, if you use Jupyter, then you would create a file called "HW_01.ipynb" for the first homework assignment.
-    * If I post the assignment as a notebook, then you can use that notebook as your starting point.
+    * I will typically post the homework as a Quarto markdown document ('.qmd'). You may use that document directly as a starting point. If your are using another document format, make sure that all instructions are included with your final submission.
 4. Commit the initial version of your notebook to the 'develop' branch.
 5. Complete the assignment.
     * For longer assignments, I recommend committing your work periodically to the 'develop' branch.
