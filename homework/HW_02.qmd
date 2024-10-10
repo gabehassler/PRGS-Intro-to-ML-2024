@@ -15,7 +15,7 @@ For this assignment, you will practice downloadings, cleaning, and analyzing dat
 
 ## Preparation
 
-1. Create a 'data' folder in the root directory of this repository.
+1. Create a 'data' folder in the root directory of your repository.
 1. Inside the 'data' folder, create a 'raw' folder.
 1. Add and commit a '.gitignore' file to the root directory of this repository that excludes all contents of the 'data' folder.
 1. Download the county-level NRI and SVI data for the entire United States. Place the data in the 'data/raw' folder.
