@@ -38,7 +38,7 @@ __3. Create a table / dataframe that, for each hazard type, shows the number of 
 ```
 # your code here
 ```
-__4. Show the cross-tabulation of the 'AVLN_AFREQ' and 'AVLN_RISKR' columns (including missing values). What do you observe?__
+__4. Create a new column in the original data table indicating whether or not 'AVLN_AFREQ' is missing or observed. Show the cross-tabulation of the 'AVLN_AFREQ' missingness and 'AVLN_RISKR' columns (including missing values). What do you observe?__
 ```
 # your code here
 ```
