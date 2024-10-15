@@ -1,0 +1,82 @@
+---
+title: "Homework 3"
+format: html
+---
+
+
+__Due Date:__ 2022-10-23 at 8:30 AM PT
+---
+
+
+__Name:__ \<your name here\>
+
+
+## Preparation
+
+1. Create a 'code' folder in the root directory of your repository.
+1. Inside the 'code' folder, create a file '01_clean_data.\<your_extension_here\>'.
+Your extension should be the one you use for your programming language of choice (e.g., '.R' for R, '.py' for Python, '.jl' for Julia).
+1. Copy any code from HW_02 you need to subset and merge the NRI and SVI datasets into the '01_clean_data' file.
+1. Add a 'processed' directory to the 'data' folder.
+1. Add a line at the end of the file that saves the merged dataset to 'data/processed' directory.
+1. Run the '01_clean_data' file to ensure that the merged dataset runs and creates the proper file.
+1. Add and commit the '01_clean_data' file to the repository.
+
+## Task 1 - Data Preparation
+
+1. Import the merged NRI and SVI data from the 'data/processed' directory.
+Make sure that the FIPS code is correctly identified as a string / character variable.
+1. Add a new variable 'POP_DENSITY' to the dataset that is equal to the total population divided by the area (both should be in the merged data set).
+
+
+## Task 2 - Cross-Validation
+
+Many machine learning methods require tuning hyperparameters to optimize performance.
+Cross-validation is a technique used to assess how well a model will generalize to an independent dataset.
+
+Lasso regression is a penalized regression model designed to reduce overfitting and improve prediction accuracy.
+The regularization strength, $\lambda$, is a hyperparameter that needs to be tuned.
+This parameter controls the strength of the penalty term, which shrinks the coefficients of the model.
+
+Cross-validation is often used to find the optimal value of $\lambda$.
+
+Below, we will use cross-validation to find the optimal value of $\lambda$ for a Lasso regression model predicting poverty rates based on natural hazard risk and population density.
+
+1. Identify the package or library in your programming language of choice that performs Lasso regression.
+Load the necessary libraries and functions.
+1. Create a function that takes the following inputs and returns the mean squared error (MSE) of a Lasso regression model:
+    - A vector of response values
+    - A matrix of predictor variables
+    - The value of $\lambda$
+1. Subset the merged dataset to include only the poverty rate ('EP_POV150'), population density, and natural hazard frequencies (i.e., the variables ending in '\_AFREQ').
+Create a new dataset that removes any missing values.
+How many rows are in the new dataset?
+1. Use the function you created to calculate the MSE of a model predicting poverty rate assuming all other model variables (i.e., population density and the natural hazards) for $\lambda = 0$.
+This is the MSE of the standard, ordinary least squares regression model.
+1. Set the random number seed to some fixed value for reproducibility.
+1. Write a function that performs k-fold cross-validation to identify the optimal value of $\lambda$.
+This function should take the following inputs:
+    - The number of folds, k
+    - A vector of response values
+    - A matrix of predictor variables
+    - A vector of $\lambda$ values to test
+
+    The function should return a data frame with the following columns:
+    - $\lambda$
+    - Mean MSE across the k folds
+1. Create a vector of $\lambda = \{0, 0.001, 0.002, ..., 0.05\}$.
+For each $\lambda$ value, use the cross-validation function to calculate the mean MSE across $k = 5$ folds.
+Plot the mean MSE across the k folds for each $\lambda$ value.
+Do you observe a clear minimum MSE?
+1. Fit a Lasso regression model to the full dataset using the optimal $\lambda$ value identified in the cross-validation.
+
+## Task 3 - Parralelization
+1. Repeat the cross-validation process for $k = 100 $ folds.
+Do you observe a substantial difference in the optimal $\lambda$ value?
+1. Time the cross-validation process for $k = 5$ and $k = 100$ folds.
+Which process is faster? Why?
+3. Is your k-fold cross-validation function parallelizable?
+If so, write a version of the function that uses parallel processing to speed up the computation and compare the parallel and non-parallel run times.
+If not, explain why it is not parallelizable.
+
+
