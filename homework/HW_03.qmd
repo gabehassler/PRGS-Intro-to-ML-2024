@@ -1,15 +1,22 @@
 ---
 title: "Homework 3"
-format: html
+format: 
+    html:
+        embed-resources: true
 ---
 
 
-__Due Date:__ 2022-10-23 at 8:30 AM PT
+__Due Date:__ 2022-10-30 at 8:30 AM PT
 ---
+
+# Do not do this yet. I will update before assigning.
 
 
 __Name:__ \<your name here\>
 
+```{r}
+print("Hello, World!")
+```
 
 ## Preparation
 
