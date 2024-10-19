@@ -1,0 +1,114 @@
+---
+title: "Parralelization"
+format: 
+    html:
+        embed-resources: true
+---
+
+
+### Julia
+```{julia}
+using LinearAlgebra
+
+function rdet(n::Int)
+    X = randn(n, n)
+    X = X' * X
+    logdet(X)
+end
+
+rdet(10)
+
+# single threaded
+
+iterations = 100
+ns = 1:100
+
+t1 = time()
+mean_dets1 = zeros(length(ns)) 
+for i = 1:length(ns)
+    s = 0
+    for j = 1:iterations
+        s += rdet(ns[i])
+    end
+
+    mean_dets1[i] = s / iterations
+end
+t2 = time()
+
+println("Single thread: $(t2 - t1) seconds")
+
+@show Threads.nthreads() # number of threads
+
+t3 = time()
+
+mean_dets2 = zeros(length(ns))
+Threads.@threads for i = 1:length(ns)
+    s = 0
+    for j = 1:iterations
+        s += rdet(ns[i])
+    end
+
+    mean_dets2[i] = s / iterations
+end
+t4 = time()
+
+println("Parallelized: $(t4 - t3) seconds")
+```
+
+
+### Python
+```{python}
+print("hello world")
+
+```
+
+
+### R
+```{r}
+rdet <- function(n) {
+    X = matrix(rnorm(n * n), nrow = n)
+    X = t(X) %*% X
+    log(det(X))
+}
+
+iterations = 100
+ns = 1:100
+
+mean_dets1 = rep(0, length(ns))
+t1 = Sys.time()
+for (i in 1:length(ns)) {
+    s = 0
+    for (j in 1:iterations) {
+        s = s + rdet(ns[i])
+    }
+    mean_dets1[i] = s / iterations
+}
+t2 = Sys.time()
+
+t1s = Sys.time()
+mean_dets1_s = sapply(ns, function(n) {
+    mean(sapply(1:iterations, function(i) rdet(n)))
+})
+t2s = Sys.time()
+
+library(doParallel)
+library(foreach)
+registerDoParallel(cores = 8)
+
+t3 = Sys.time()
+mean_dets2 = foreach(i = 1:length(ns)) %dopar% {
+    s = 0
+    for (j in 1:iterations) {
+        s = s + rdet(ns[i])
+    }
+    s / iterations
+}
+mean_dets2 = unlist(mean_dets2)
+t4 = Sys.time()
+
+print(paste0("Serial time: ", t2 - t1))
+print(paste0("Serial time (sapply): ", t2s - t1s))
+print(paste0("Parallel time: ", t4 - t3))
+
+
+```
