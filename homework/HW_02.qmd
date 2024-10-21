@@ -1,6 +1,8 @@
 ---
 title: "Homework 2"
-format: html
+format:
+    html:
+        embed-resources: true
 ---
 
 __Due Date:__ 2022-10-16 at 8:30 AM PT
