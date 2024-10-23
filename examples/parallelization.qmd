@@ -58,7 +58,48 @@ println("Parallelized: $(t4 - t3) seconds")
 
 ### Python
 ```{python}
-print("hello world")
+import numpy as np
+import time
+# from multiprocessing import Pool
+from pathos.multiprocessing import ProcessingPool as Pool
+
+def rdet(n):
+    X = np.random.normal(size=(n, n))
+    X = np.dot(X.T, X)
+    return np.log(np.linalg.det(X))
+
+iterations = 100
+ns = range(1, 101)
+
+# Serial computation
+mean_dets1 = np.zeros(len(ns))
+t1 = time.time()
+for i in range(len(ns)):
+    s = 0
+    for j in range(iterations):
+        s += rdet(ns[i])
+    mean_dets1[i] = s / iterations
+
+t2 = time.time()
+
+# Using list comprehension (similar to sapply)
+t1s = time.time()
+mean_dets1_s = [np.mean([rdet(n) for _ in range(iterations)]) for n in ns]
+t2s = time.time()
+
+# Parallel computation
+def parallel_rdet(n):
+    return np.mean([rdet(n) for _ in range(iterations)])
+
+if __name__ == '__main__':
+    with Pool(processes=8) as pool:
+        t3 = time.time()
+        mean_dets2 = pool.map(parallel_rdet, ns)
+        t4 = time.time()
+
+    print(f"Serial time: {t2 - t1}")
+    print(f"Serial time (list comprehension): {t2s - t1s}")
+    print(f"Parallel time: {t4 - t3}")
 
 ```
 
@@ -82,9 +123,9 @@ for (i in 1:length(ns)) {
         s = s + rdet(ns[i])
     }
     mean_dets1[i] = s / iterations
-}
-t2 = Sys.time()
+};
 
+t2 = Sys.time()
 t1s = Sys.time()
 mean_dets1_s = sapply(ns, function(n) {
     mean(sapply(1:iterations, function(i) rdet(n)))
