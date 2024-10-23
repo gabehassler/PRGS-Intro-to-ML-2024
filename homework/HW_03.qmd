@@ -55,5 +55,5 @@ As such, I have written example [code](https://github.com/gabehassler/PRGS-Intro
 This procedure is a simplified versionof an approach explained in this [blog post](https://alexhwilliams.info/itsneuronalblog/2018/02/26/crossval/).
 For the purposes of this assignment, the `pca_cv_error` function is a black box that returns the cross-validation error for a given number of principal components.
 _Note: If you use a different programming language, you can use ChatGPT to translate the code to your language of choice._
-    a. Compute the cross-validation error for 1 to 17 principal components. __If this process is parallelizable, parallelize the code.__
+    a. Compute the cross-validation error for 1 to 17 principal components. If this process is parallelizable, parallelize the code. If setting a random number seed would make this work more reproducible, set a random number seed.
     a. How many principal components should be retained based on the cross-validation error?

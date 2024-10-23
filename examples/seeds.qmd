@@ -1,0 +1,35 @@
+---
+title: "Random Number Seeds"
+format: 
+    html:
+        embed-resources: true
+---
+
+
+### Julia
+```{julia}
+import Random
+Random.seed!(666)
+
+rand(4)
+
+```
+
+
+### Python
+```{python}
+import random
+random.seed(666)
+
+[random.random() for _ in range(4)]
+
+```
+
+
+### R
+```{r}
+set.seed(666)
+
+runif(4)
+
+```
