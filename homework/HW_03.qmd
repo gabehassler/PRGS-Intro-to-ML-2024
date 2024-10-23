@@ -51,7 +51,7 @@ One common method is to retain principal components that explain a certain perce
     a. How many principal components should be retained based on the scree plot? This video may help: [PCA Scree Plot](https://youtu.be/vFUvNICWVz4?si=6NbyRcLRGT8L1HzI)
 1. Cross-validation is another method to determine the number of principal components to retain.
 This process requires some linear algebra that is beyond the scope of this course.
-As such, I have written example [code](TODO) in Julia that demonstrates how to perform cross-validation.
+As such, I have written example [code](https://github.com/gabehassler/PRGS-Intro-to-ML-2024/blob/main/examples/pca_cross_validation.jl) in Julia that demonstrates how to perform cross-validation.
 This procedure is a simplified versionof an approach explained in this [blog post](https://alexhwilliams.info/itsneuronalblog/2018/02/26/crossval/).
 For the purposes of this assignment, the `pca_cv_error` function is a black box that returns the cross-validation error for a given number of principal components.
 _Note: If you use a different programming language, you can use ChatGPT to translate the code to your language of choice._
