@@ -24,61 +24,36 @@ Your extension should be the one you use for your programming language of choice
 1. Run the '01_clean_data' file to ensure that the merged dataset runs and creates the proper file.
 1. Add and commit the '01_clean_data' file to the repository.
 
-## Task 1 - Data Preparation
-
-1. Import the merged NRI and SVI data from the 'data/processed' directory.
-Make sure that the FIPS code is correctly identified as a string / character variable.
-1. Add a new variable 'POP_DENSITY' to the dataset that is equal to the total population divided by the area (both should be in the merged data set).
 
 
-## Task 2 - Cross-Validation
+## Homework - Principal Component Analysis
 
-Many machine learning methods require tuning hyperparameters to optimize performance.
-Cross-validation is a technique used to assess how well a model will generalize to an independent dataset.
+The CDC Social Vulnerability Index (SVI) takes multiple differen population-level inputs (e.g., % of the population living in poverty, % of the population without health insurance) to identify particularly vulnerable counties.
+While the CDC SVI scores rely on adding up the percentiles of various characteristics, there are alternative indexes (e.g., [University of South Carolina SoVI index](https://sc.edu/study/colleges_schools/artsandsciences/centers_and_institutes/hvri/data_and_resources/sovi/index.php)) that use methods like PCA.
+Here, we are going to use the CDC SVI data to create an alternative index based on PCA.
 
-Lasso regression is a penalized regression model designed to reduce overfitting and improve prediction accuracy.
-The regularization strength, $\lambda$, is a hyperparameter that needs to be tuned.
-This parameter controls the strength of the penalty term, which shrinks the coefficients of the model.
+1. The following variables are used in the SVI:
+`EP_POV150, EP_UNEMP, EP_HBURD, EP_NOHSDP, EP_UNINSUR, EP_AGE65, EP_AGE17, EP_DISABL, EP_SNGPNT, EP_LIMENG, EP_MINRTY, EP_MUNIT, EP_MOBILE, EP_CROWD, EP_NOVEH, EP_GROUPQ, EP_NOINT`
 
-Cross-validation is often used to find the optimal value of $\lambda$.
-
-Below, we will use cross-validation to find the optimal value of $\lambda$ for a Lasso regression model predicting poverty rates based on natural hazard risk and population density.
-
-1. Identify the package or library in your programming language of choice that performs Lasso regression.
-Load the necessary libraries and functions.
-1. Create a function that takes the following inputs and returns the mean squared error (MSE) of a Lasso regression model:
-    - A vector of response values
-    - A matrix of predictor variables
-    - The value of $\lambda$
-1. Subset the merged dataset to include only the poverty rate ('EP_POV150'), population density, and natural hazard frequencies (i.e., the variables ending in '\_AFREQ').
-Create a new dataset that removes any missing values.
-How many rows are in the new dataset?
-1. Use the function you created to calculate the MSE of a model predicting poverty rate assuming all other model variables (i.e., population density and the natural hazards) for $\lambda = 0$.
-This is the MSE of the standard, ordinary least squares regression model.
-1. Set the random number seed to some fixed value for reproducibility.
-1. Write a function that performs k-fold cross-validation to identify the optimal value of $\lambda$.
-This function should take the following inputs:
-    - The number of folds, k
-    - A vector of response values
-    - A matrix of predictor variables
-    - A vector of $\lambda$ values to test
-
-    The function should return a data frame with the following columns:
-    - $\lambda$
-    - Mean MSE across the k folds
-1. Create a vector of $\lambda = \{0, 0.001, 0.002, ..., 0.05\}$.
-For each $\lambda$ value, use the cross-validation function to calculate the mean MSE across $k = 5$ folds.
-Plot the mean MSE across the k folds for each $\lambda$ value.
-Do you observe a clear minimum MSE?
-1. Fit a Lasso regression model to the full dataset using the optimal $\lambda$ value identified in the cross-validation.
-
-## Task 3 - Parralelization
-1. Repeat the cross-validation process for $k = 100 $ folds.
-Do you observe a substantial difference in the optimal $\lambda$ value?
-1. Time the cross-validation process for $k = 5$ and $k = 100$ folds.
-Which process is faster? Why?
-3. Is your k-fold cross-validation function parallelizable?
-If so, write a version of the function that uses parallel processing to speed up the computation and compare the parallel and non-parallel run times.
-If not, explain why it is not parallelizable.
-
-
+    __Perform PCA on the variables above.__
+    
+    _Note: Typically variables should be standardized to have mean 0 and variance 1 before performing PCA. Most software packages for performing PCA automatically do this or include this as a function argument. Check the function / package documentation to determine whether this standardization is happening and standardize the data if it is not automatic._
+1. Plot the eigenvectors or loadings associated of the first three principal components.
+Make sure that the axis labels correspond to the variable names and not the indices of the variables.
+How would you interpret the first three prinicpal components?
+_Note: you can find the documentation for the SVI variables [here](https://www.atsdr.cdc.gov/placeandhealth/svi/documentation/SVI_documentation_2022.html)._
+1. There are several different ways to determine the number of principal components to retain.
+One common method is to retain principal components that explain a certain percentage of the variance in the data.
+    a. How many principal components are needed to explain 80% of the variance in the data?
+    a. How many principal components are needed to explain 90% of the variance in the data?
+1. An alternative approach is to plot the eigenvalues of the principal components and retain the components that are above the "elbow" in the plot. In other words the eigenvalues that are substantially larger than the rest.
+    a. Create a [scree plot](https://en.wikipedia.org/wiki/Scree_plot) of the eigenvalues of the principal components.
+    a. How many principal components should be retained based on the scree plot? This video may help: [PCA Scree Plot](https://youtu.be/vFUvNICWVz4?si=6NbyRcLRGT8L1HzI)
+1. Cross-validation is another method to determine the number of principal components to retain.
+This process requires some linear algebra that is beyond the scope of this course.
+As such, I have written example [code](TODO) in Julia that demonstrates how to perform cross-validation.
+This procedure is a simplified versionof an approach explained in this [blog post](https://alexhwilliams.info/itsneuronalblog/2018/02/26/crossval/).
+For the purposes of this assignment, the `pca_cv_error` function is a black box that returns the cross-validation error for a given number of principal components.
+_Note: If you use a different programming language, you can use ChatGPT to translate the code to your language of choice._
+    a. Compute the cross-validation error for 1 to 17 principal components. __If this process is parallelizable, parallelize the code.__
+    a. How many principal components should be retained based on the cross-validation error?
