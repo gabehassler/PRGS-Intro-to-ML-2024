@@ -34,10 +34,18 @@ Here, we are going to use the CDC SVI data to create an alternative index based 
 
 1. The following variables are used in the SVI:
 `EP_POV150, EP_UNEMP, EP_HBURD, EP_NOHSDP, EP_UNINSUR, EP_AGE65, EP_AGE17, EP_DISABL, EP_SNGPNT, EP_LIMENG, EP_MINRTY, EP_MUNIT, EP_MOBILE, EP_CROWD, EP_NOVEH, EP_GROUPQ, EP_NOINT`
+    a. Subset the merged dataset to only include the variables above and look at the pattern of missing data.
+    Are missing observations scattered throughout the data or are entire rows or columns missing?
+    b. PCA cannot handle missing values by default.
+    There are several options for handling missing data generally, including imputation, removing rows with missing data, or removing columns with missing data.
+    Deal with the missing data in a way that makes sense for the pattern of missing data and the goals of the analysis. Explain why you made this decision.
+    _Note: How you handle this is specific to the missing data pattern and the goals of the analysis.
+    For example, when entire rows or columns are missing, imputation may not be appropriate and dropping those rows or columns is usually the best option.
+    Conversely, if you have a general missingness pattern where missing observations are scattered throughout the data, imputation is likely the best option._
+    a. After dealing with the missing data, perform PCA on the SVI variables.
 
-    __Perform PCA on the variables above.__
     
-    _Note: Typically variables should be standardized to have mean 0 and variance 1 before performing PCA. Most software packages for performing PCA automatically do this or include this as a function argument. Check the function / package documentation to determine whether this standardization is happening and standardize the data if it is not automatic._
+
 1. Plot the eigenvectors or loadings associated of the first three principal components.
 Make sure that the axis labels correspond to the variable names and not the indices of the variables.
 How would you interpret the first three prinicpal components?
