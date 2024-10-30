@@ -1,0 +1,71 @@
+---
+title: "K-Means Clustering In-Class Activity"
+format: 
+    html:
+        embed-resources: true
+---
+
+
+## Preparation
+
+I'm simulating a dataset with 3 clusters in 2 dimensions. The code below generates the data and plots it.
+
+```{python}
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(0)
+
+samples_per_cluster = 100
+n_clusters = 3
+dim = 2
+
+cluster_means = [
+    [0, 0],
+    [3, 3],
+    [0, 3]
+]
+
+cluster_sd = 0.5
+
+X = np.zeros((samples_per_cluster * n_clusters, dim))
+
+for i, mean in enumerate(cluster_means):
+    X[i * samples_per_cluster:(i + 1) * samples_per_cluster] = np.random.normal(mean, cluster_sd, (samples_per_cluster, dim))
+
+plt.scatter(X[:, 0], X[:, 1])
+
+```
+
+
+## K-Means Clustering
+
+Write a function to perform k-means clustering from scratch. Here is some pseudocode to get you started:
+
+Algorithm:
+```{python}
+def kmeans(X, k):
+    # Pick k random points as initial centroids
+    # Initialize cluster assignments variable (it can be a numpy array of zeros)
+
+    # Repeat until convergence or max_iter:
+    #     Assign each point to the nearest centroid
+    #     Update the centroids to the mean of the points assigned to them
+
+    # return the cluster assignments
+    
+
+```
+
+
+Plot the data with the cluster assignments. You can use the `plot_clusters` function below to plot the clusters.
+
+```{python}
+
+def plot_clusters(X, cluster_assignments):
+    plt.scatter(X[:, 0], X[:, 1], c=cluster_assignments)
+    plt.show()
+
+
+```
