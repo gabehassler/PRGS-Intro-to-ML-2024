@@ -15,7 +15,7 @@ __Name:__ \<your name here\>
 
 ## Preparation
 
-1. Download the data file from GitHub and place it in the _data/processed_ folder.
+1. Download the [data file](https://github.com/gabehassler/PRGS-Intro-to-ML-2024/blob/main/data/processed/svi_covid.csv) from GitHub and place it in the _data/processed_ folder.
 
 
 
