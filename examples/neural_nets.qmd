@@ -27,6 +27,7 @@ import math
 import numpy as np
 from numpy.random import randn
 import random
+import pandas as pd
 
 random.seed(666)
 np.random.seed(666)
@@ -47,13 +48,16 @@ y_true = [f(x) for x in x_rng]
 plt.plot(x_rng, y_true, color="red")
 
 plt.show()
+
+# when you use this on real data, you'll import the data directly from a file
+df = pd.DataFrame({"x": x, "y": y})
 ```
 
 
-### Define the neural network
+### Lots of Biolerplate Code
 
+#### Load Packages
 ```{python}
-
 import torch
 from torch import nn
 from torch.utils.data import random_split
@@ -61,7 +65,22 @@ from torch.utils.data import DataLoader, Dataset
 import numpy as np
 import pandas as pd
 
+torch.manual_seed(777) # for reproducibility
+```
 
+
+#### Define a Dataset Class
+
+The performance (speed) of fitting neural networks varies dramatically with the fine details of how the data are structured.
+Because of this, many of thise packages (including PyTorch) require you to specify how you want data stored and loaded.
+This is a pain for new users, but it is important for optimizing performance in more complex problems.
+
+The code below defines a class that can be used to load data from a pandas dataframe into a PyTorch dataset.
+_You can directly copy and paste the following code without any modification._
+```{python}
+
+
+# special PyTorch class for loading data
 class PandasDataset(Dataset):
     def __init__(self, dataframe, predictors, outcome):
         x = np.array(dataframe[predictors].values).reshape(-1, len(predictors))
@@ -75,15 +94,43 @@ class PandasDataset(Dataset):
     def __getitem__(self, idx):
         return self.x[idx], self.y[idx]
 
-df = pd.DataFrame({"x": x, "z": x - 1, "y": y})
+
+```
+
+Once you've defined the class, you can actaully load the data into the class.
+_You'll need to modify the code below to load your own data._
+```{python}
 
 dataset = PandasDataset(df, ["x"], "y")
-train_size = int(0.8 * len(dataset))
+
+```
+
+#### Split the data into training and testing sets
+
+Just like with other machine learning methods, you'll want to split the data into training and testing sets.
+The code below does this.
+_You can directly copy and paste the following code without any modification._
+
+```{python}
+
+train_perc = 0.8 # 80% of the data will be used for training
+
+train_size = int(train_perc * len(dataset))
 test_size = len(dataset) - train_size
 train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
-train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=64, shuffle=True)
 
+```
+
+
+#### Where / how will the code run?
+
+If you have access to a GPU, you can use it to speed up the calculations.
+The code below will automatically use the GPU if it is available.
+_You can directly copy and paste the following code without any modification._
+
+
+
+```{python}
 
 device = (
     "cuda"
@@ -94,21 +141,26 @@ device = (
 )
 print(f"Using {device} device")
 
+```
+
+#### Define the Neural Network
+This is the most important part of the code.
+It defines the structure of the neural network.
+Neural networks have 'layers' that typically comprise of a linear transformation followed by a non-linear transformation.
+The code below defines a simple neural network with one hidden layer.
+
+_You can use the code below as a starting point, but you will need to modify it to fit your specific problem._
+```{python}
+
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super().__init__()
         self.linear_relu_stack = nn.Sequential(
-            nn.Linear(1, 100),
+            # you will want to play with the code below
+            nn.Linear(1, 10), # the first number is the number of input features
             nn.ReLU(),
-            nn.Linear(100, 100),
-            nn.ReLU(),
-            nn.Linear(100, 100),
-            nn.ReLU(),
-            nn.Linear(100, 100),
-            nn.ReLU(),
-            nn.Linear(100, 100),
-            nn.ReLU(),
-            nn.Linear(100, 1),
+            nn.Linear(10, 1), # the second number is the number of output features
+            # you will want to play with the code above
         )
 
     def forward(self, x):
@@ -116,9 +168,26 @@ class NeuralNetwork(nn.Module):
         return estimates
 
 
-model = NeuralNetwork().to(device)
+model = NeuralNetwork().to(device) # load the model onto the appropriate device
 
+```
+
+#### Define the Loss Function
+
+Your loss function is the function that the neural network will try to minimize.
+For regression problems with continuous outputs, the mean squared error is a common loss function.
+
+```{python}
 loss_fn = nn.MSELoss()
+```
+
+#### More Boilerplate Code
+
+The code below defines the optimizer that will be used to minimize the loss function.
+The optimizer is the algorithm that will be used to minimize the loss function.
+It also defines exactly how the neural network will be trained and tested.
+
+```{python}
 optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
 
 def train(dataloader, model, loss_fn, optimizer, losses):
@@ -141,7 +210,6 @@ def train(dataloader, model, loss_fn, optimizer, losses):
         train_loss += loss.item()
     train_loss /= num_batches
     losses.append(train_loss)
-    # print(f"Train loss: {train_loss:>8f} \n")
 
 
 def test(dataloader, model, loss_fn, losses):
@@ -156,25 +224,48 @@ def test(dataloader, model, loss_fn, losses):
             test_loss += loss_fn(pred, y).item()
     test_loss /= num_batches
     losses.append(test_loss)
-    # print(f"Test loss: {test_loss:>8f} \n")
 
+```
+
+#### Train the Neural Network
+
+The code below trains the neural network.
+_You can directly copy and paste the following code with minimal modification._
+
+```{python}
+
+batch_size = 64 # number of observations to use in each iteration
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
 train_losses = []
 test_losses = []
 
-epochs = 10000
+epochs = 10000 # you will want to play with this number
 for t in range(epochs):
-    # print(f"Epoch {t+1}\n-------------------------------")
     train(train_loader, model, loss_fn, optimizer, train_losses)
     test(test_loader, model, loss_fn, test_losses)
 print("Done!")
 
+
+```
+
+
+#### Plot the Losses
+
+```{python}
 plt.plot(train_losses, label="train")
 plt.plot(test_losses, label="test")
 plt.legend()
 plt.show()
 
 ```
+
+### Inspect the Results
+
+The code below plots the predictions of the neural network against the true values.
+This will help you understand how well the neural network is performing.
+This code is mostly useful for demonstration in this simple example and may not be useful in more complex problems.
 
 ```{python}
 x_train = np.array([x for x, y in train_dataset])
@@ -209,4 +300,138 @@ plt.plot(x, y, label="neural network")
 plt.legend()
 plt.show()
 
+```
+
+
+## Another Example
+
+```{python}
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+def f(x, y):
+    return np.sin(x**2 + y**2) * np.sqrt(abs(x)) + y / 2
+# plot the function
+mn = -2
+mx = 2
+x = np.linspace(mn, mx, 100)
+y = np.linspace(mn, mx, 100)
+
+# stack the x and y values in a dataframe
+df = pd.DataFrame({"x": np.tile(x, len(y)), "y": np.repeat(y, len(x))})
+df["z"] = [f(x, y) for x, y in zip(df["x"], df["y"])]
+
+# plot the function
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+X, Y = np.meshgrid(x, y)
+zs = np.array([f(x,y) for x,y in zip(np.ravel(X), np.ravel(Y))])
+Z = zs.reshape(X.shape)
+plot = ax.plot_surface(X, Y, Z, cmap='viridis')
+fig.colorbar(plot, shrink=0.5, aspect=5)
+
+# color by z value
+
+plt.show()
+
+df = df.sample(1000)
+
+```
+
+### Fit the Neural Network
+
+```{python}
+
+# randomly subset the data
+
+# load the data into the dataset
+dataset = PandasDataset(df, ["x", "y"], "z")
+
+# split the data into training and testing sets
+train_perc = 0.8
+train_size = int(train_perc * len(dataset))
+test_size = len(dataset) - train_size
+train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+
+# define the neural network
+class NeuralNetwork(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear_relu_stack = nn.Sequential(
+            nn.Linear(2, 10), # input dimension is 2
+            nn.ReLU(),
+            nn.Linear(10, 10),
+            nn.ReLU(),
+            nn.Linear(10, 10),
+            nn.ReLU(),
+            nn.Linear(10, 1),
+        )
+
+    def forward(self, x):
+        estimates = self.linear_relu_stack(x)
+        return estimates
+
+# load the model onto the appropriate device
+model = NeuralNetwork().to(device)
+
+# define the loss function
+loss_fn = nn.MSELoss()
+
+# define the optimizer
+optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+
+# train the neural network
+batch_size = 64
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+
+train_losses = []
+test_losses = []
+
+epochs = 1000
+for t in range(epochs):
+    train(train_loader, model, loss_fn, optimizer, train_losses)
+    test(test_loader, model, loss_fn, test_losses)
+
+# plot the losses
+plt.plot(train_losses, label="train")
+plt.plot(test_losses, label="test")
+plt.legend()
+
+plt.show()
+```
+
+```{python}
+# plot the predictions
+x_rng = np.linspace(mn, mx, 100)
+y_rng = np.linspace(mn, mx, 100)
+X, Y = np.meshgrid(x_rng, y_rng)
+Z = model(torch.tensor(np.array([X.ravel(), Y.ravel()]).T, dtype=torch.float32)).detach().numpy().reshape(X.shape)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+plot = ax.plot_surface(X, Y, Z, cmap='viridis')
+fig.colorbar(plot, shrink=0.5, aspect=5)
+
+plt.show()
+```
+
+
+```{python}
+
+x_train = np.array([x for x, y in train_dataset])
+x_test = np.array([x for x, y in test_dataset])
+y_train = np.array([y for x, y in train_dataset])
+y_test = np.array([y for x, y in test_dataset])
+y_train_pred = model(torch.tensor(x_train, dtype=torch.float32).reshape(-1, 2)).detach().numpy()
+y_test_pred = model(torch.tensor(x_test, dtype=torch.float32).reshape(-1, 2)).detach().numpy()
+
+plt.scatter(y_train, y_train_pred, label="training")
+plt.scatter(y_test, y_test_pred, label="test")
+plt.xlabel("Actual")
+plt.ylabel("Predicted")
+plt.legend()
+plt.show()
 ```
