@@ -1,0 +1,35 @@
+---
+title: "Homework 5"
+format: 
+    html:
+        embed-resources: true
+---
+
+
+__Due Date:__ 2024-11-20 at 8:30 AM PT
+---
+
+
+__Name:__ \<your name here\>
+
+
+## Preparation
+
+1. We're using the same [data file](https://github.com/gabehassler/PRGS-Intro-to-ML-2024/blob/main/data/processed/svi_covid.csv) from GitHub as the last assignment.
+If should be in the _data/processed_ folder.
+
+
+
+## Homework - Neural Newtorks
+
+1. Use a simple neural network to predict the number of per-capita COVID-19 deaths in each county in the US using the SVI variables.
+The outcome variable is `total_deaths_per_100k` and the predictor variables are `EP_POV150, EP_UNEMP, EP_HBURD, EP_NOHSDP, EP_UNINSUR, EP_AGE65, EP_AGE17, EP_DISABL, EP_SNGPNT, EP_LIMENG, EP_MINRTY, EP_MUNIT, EP_MOBILE, EP_CROWD, EP_NOVEH, EP_GROUPQ, EP_NOINT`.
+The neural network should have one hidden layer with 10 nodes and use the ReLU activation function.
+Plot the predicted values against the true values.
+
+2. Repeat the analysis from the previous question, but this time use a more complicated neural network with more hidden layers and/or more nodes in the hidden layers.
+You should experiment with different architectures and activation functions to see what works best.
+Plot the predicted values against the true values.
+
+3. Compare the predictions of the neural network in Question 2 to the predictions of the regression tree from the previous assignment. Which model would you use to predict the number of per-capita COVID-19 deaths? Why?
+Which model would you use to understand the relationship between the SVI variables and the number of per-capita COVID-19 deaths? Why?
