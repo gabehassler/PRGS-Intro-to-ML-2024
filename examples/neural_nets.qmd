@@ -62,7 +62,7 @@ import numpy as np
 import pandas as pd
 
 
-class ExampleDataset(Dataset):
+class PandasDataset(Dataset):
     def __init__(self, dataframe, predictors, outcome):
         x = np.array(dataframe[predictors].values).reshape(-1, len(predictors))
         y = np.array(dataframe[outcome].values).reshape(-1, 1)
@@ -77,7 +77,7 @@ class ExampleDataset(Dataset):
 
 df = pd.DataFrame({"x": x, "z": x - 1, "y": y})
 
-dataset = ExampleDataset(df, ["x"], "y")
+dataset = PandasDataset(df, ["x"], "y")
 train_size = int(0.8 * len(dataset))
 test_size = len(dataset) - train_size
 train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
