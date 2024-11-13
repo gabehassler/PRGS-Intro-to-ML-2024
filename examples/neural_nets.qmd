@@ -1,0 +1,211 @@
+---
+title: "Neural Networks"
+format: 
+    html:
+        embed-resources: true
+---
+
+
+## PyTorch Installation
+
+To install PyTorch, you can use the following command: `pip install torch torchvision torchaudio`.
+
+
+## How to use PyTorch to fit a neural network to data
+
+### Simulate some data
+
+If you have real data, then this won't be necessary.
+
+<!-- git archive --remote=git@github.com:gabehassler/PRGS-Intro-to-ML-2024.git HEAD README.md -->
+
+git archive --remote=https://github.com/gabehassler/PRGS-Intro-to-ML-2024.git HEAD README.md
+
+```{python}
+import matplotlib.pyplot as plt
+import math
+import numpy as np
+from numpy.random import randn
+import random
+
+random.seed(666)
+np.random.seed(666)
+
+def f(x):
+    return math.sin(x) + x / 10
+
+
+
+n = 1000
+x = 3 * randn(n)
+y = [f(x[i]) + 0.5 * randn() for i in range(n)]
+
+
+plt.scatter(x, y)
+x_rng = np.linspace(x.min() - 1, x.max() + 1, 100)
+y_true = [f(x) for x in x_rng]
+plt.plot(x_rng, y_true, color="red")
+
+plt.show()
+```
+
+
+### Define the neural network
+
+```{python}
+
+import torch
+from torch import nn
+from torch.utils.data import random_split
+from torch.utils.data import DataLoader, Dataset
+import numpy as np
+
+
+class ExampleDataset(Dataset):
+    def __init__(self, x, y):
+        x = np.array(x).reshape(-1, 1)
+        y = np.array(y).reshape(-1, 1)
+        self.x = torch.tensor(x, dtype=torch.float32)
+        self.y = torch.tensor(y, dtype=torch.float32)
+
+    def __len__(self):
+        return len(self.x)
+
+    def __getitem__(self, idx):
+        return self.x[idx], self.y[idx]
+
+
+dataset = ExampleDataset(x, y)
+train_size = int(0.8 * len(dataset))
+test_size = len(dataset) - train_size
+train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=64, shuffle=True)
+
+
+device = (
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps"
+    if torch.backends.mps.is_available()
+    else "cpu"
+)
+print(f"Using {device} device")
+
+class NeuralNetwork(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear_relu_stack = nn.Sequential(
+            nn.Linear(1, 100),
+            nn.ReLU(),
+            nn.Linear(100, 100),
+            nn.ReLU(),
+            nn.Linear(100, 100),
+            nn.ReLU(),
+            nn.Linear(100, 100),
+            nn.ReLU(),
+            nn.Linear(100, 100),
+            nn.ReLU(),
+            nn.Linear(100, 1),
+        )
+
+    def forward(self, x):
+        estimates = self.linear_relu_stack(x)
+        return estimates
+
+
+model = NeuralNetwork().to(device)
+print(model)
+
+loss_fn = nn.MSELoss()
+optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+
+def train(dataloader, model, loss_fn, optimizer, losses):
+    size = len(dataloader.dataset)
+    num_batches = len(dataloader)
+    model.train()
+    train_loss = 0
+    for batch, (X, y) in enumerate(dataloader):
+        X, y = X.to(device), y.to(device)
+
+        # Compute prediction error
+        pred = model(X)
+        loss = loss_fn(pred, y)
+
+        # Backpropagation
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+
+        train_loss += loss.item()
+    train_loss /= num_batches
+    losses.append(train_loss)
+    # print(f"Train loss: {train_loss:>8f} \n")
+
+
+def test(dataloader, model, loss_fn, losses):
+    size = len(dataloader.dataset)
+    num_batches = len(dataloader)
+    model.eval()
+    test_loss = 0
+    with torch.no_grad():
+        for X, y in dataloader:
+            X, y = X.to(device), y.to(device)
+            pred = model(X)
+            test_loss += loss_fn(pred, y).item()
+    test_loss /= num_batches
+    losses.append(test_loss)
+    # print(f"Test loss: {test_loss:>8f} \n")
+
+
+train_losses = []
+test_losses = []
+
+epochs = 10000
+for t in range(epochs):
+    # print(f"Epoch {t+1}\n-------------------------------")
+    train(train_loader, model, loss_fn, optimizer, train_losses)
+    test(test_loader, model, loss_fn, test_losses)
+print("Done!")
+
+plt.plot(train_losses, label="train")
+plt.plot(test_losses, label="test")
+plt.legend()
+plt.show()
+
+```
+
+```{python}
+x_train = np.array([x for x, y in train_dataset])
+y_train = np.array([y for x, y in train_dataset])
+x_test = np.array([x for x, y in test_dataset])
+y_test = np.array([y for x, y in test_dataset])
+predicted = model(torch.tensor(x_rng, dtype=torch.float32).reshape(-1, 1)).detach().numpy()
+
+
+
+plt.scatter(x_train, y_train, label="training")
+plt.scatter(x_test, y_test, label="test")
+plt.plot(x_rng, predicted, color="red", label="neural network")
+
+plt.legend()
+plt.show()
+
+```
+
+
+Neural networks are just functions.
+
+```{python}
+
+# plot f() and the neural network
+x = np.linspace(min(x) * 2, max(x) * 2, 100)
+y = [f(x[i]) for i in range(100)]
+plt.plot(x, y, label="f(x)")
+
+y = model(torch.tensor(x, dtype=torch.float32).reshape(-1, 1)).detach().numpy()
+plt.plot(x, y, label="neural network")
+plt.legend()
+plt.show()
+
+```
