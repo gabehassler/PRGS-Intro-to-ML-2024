@@ -403,6 +403,9 @@ plt.legend()
 plt.show()
 ```
 
+
+### Inspect the Results
+
 ```{python}
 # plot the predictions
 x_rng = np.linspace(mn, mx, 100)
