@@ -157,14 +157,6 @@ class NeuralNetwork(nn.Module):
             # you will want to play with the code below
             nn.Linear(1, 10), # the first number is the number of input features
             nn.ReLU(),
-            nn.Linear(10, 20),
-            nn.ReLU(),
-            nn.Linear(20, 20),
-            nn.ReLU(),
-            nn.Linear(20, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
             nn.Linear(10, 1), # the second number is the number of output features
             # you will want to play with the code above
         )
