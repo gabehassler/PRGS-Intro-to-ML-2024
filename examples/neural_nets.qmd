@@ -17,9 +17,7 @@ To install PyTorch, you can use the following command: `pip install torch torchv
 
 If you have real data, then this won't be necessary.
 
-<!-- git archive --remote=git@github.com:gabehassler/PRGS-Intro-to-ML-2024.git HEAD README.md -->
 
-git archive --remote=https://github.com/gabehassler/PRGS-Intro-to-ML-2024.git HEAD README.md
 
 ```{python}
 import matplotlib.pyplot as plt
@@ -37,7 +35,7 @@ def f(x):
 
 
 
-n = 100
+n = 1000
 x = 3 * randn(n)
 y = [f(x[i]) + 0.5 * randn() for i in range(n)]
 
@@ -159,6 +157,14 @@ class NeuralNetwork(nn.Module):
             # you will want to play with the code below
             nn.Linear(1, 10), # the first number is the number of input features
             nn.ReLU(),
+            nn.Linear(10, 20),
+            nn.ReLU(),
+            nn.Linear(20, 20),
+            nn.ReLU(),
+            nn.Linear(20, 10),
+            nn.ReLU(),
+            nn.Linear(10, 10),
+            nn.ReLU(),
             nn.Linear(10, 1), # the second number is the number of output features
             # you will want to play with the code above
         )
@@ -257,6 +263,8 @@ print("Done!")
 plt.plot(train_losses, label="train")
 plt.plot(test_losses, label="test")
 plt.legend()
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
 plt.show()
 
 ```
