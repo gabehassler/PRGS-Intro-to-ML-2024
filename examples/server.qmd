@@ -1,0 +1,58 @@
+---
+title: "Parralelization"
+format: 
+    html:
+        embed-resources: true
+---
+
+## Request Server Access
+We are going to use the RAND [Analytic Computing Service (ACS)](https://randus.sharepoint.com/rso/is/Pages/analytic_computing_lab.aspx) servers.
+You need to request ACS access.
+To request ACS access, use this [form](https://jira.rand.org/servicedesk/customer/portal/6/create/455) and select the "< 500 GB" option.
+
+## Connect to the server
+
+### Mac / Linux: `ssh`
+
+Apple and Linux machines have ssh protocols built into the operating system.
+You can access a remote server using the `ssh` command:
+
+`ssh <server url / ip address>`
+
+### Windows: putty
+
+Windows machines don't have build in ssh.
+However, [PuTTY](https://www.putty.org) provides the same functionality.
+PuTTY provides a command line interface as well as a GUI.
+
+### VSCode (both Windows and Mac)
+
+You can also use VSCode to ssh into an online server.
+To do this, you need the [Remote-SSH VSCode extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) (may or may not already be installed).
+To connect to a server in VSCode using ssh, access the VSCode command pallette (`ctrl + shift + P`) and type `ssh`.
+The `Remote-SSH: Connect to Host...` option will let you input a server to connect to.
+
+## Set up Torch with Cuda
+
+These instructions are from the [PyTorch installation instructions](https://pytorch.org/get-started/locally/).
+If CUDA is available, torch will probably find it when installing.
+```
+pip install torch torchvision torchaudio
+```
+
+
+To see if CUDA is set, up, run:
+```{python}
+import torch
+
+# Get cpu, gpu or mps device for training.
+device = (
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps"
+    if torch.backends.mps.is_available()
+    else "cpu"
+)
+print(f"Using {device} device")
+
+```
