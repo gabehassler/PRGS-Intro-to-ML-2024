@@ -1,0 +1,84 @@
+---
+title: "Homework 5"
+format: 
+    html:
+        embed-resources: true
+execute:
+    python: env/bin/python3.11
+---
+
+
+__Due Date:__ 2024-11-27 at 8:30 AM PT
+---
+
+
+__Name:__ \<your name here\>
+
+
+## Preparation
+
+
+### Request Server Access
+We are going to use the RAND [Analytic Computing Service (ACS)](https://randus.sharepoint.com/rso/is/Pages/analytic_computing_lab.aspx) servers.
+You need to request ACS access.
+To request ACS access, use this [form](https://jira.rand.org/servicedesk/customer/portal/6/create/455) and select the "< 500 GB" option.
+
+### Connect to the server
+
+You will want to connect to the server named __Jules__.
+
+#### Mac / Linux: `ssh`
+
+Apple and Linux machines have ssh protocols built into the operating system.
+You can access a remote server using the `ssh` command:
+
+`ssh <server url / ip address>`
+
+#### Windows: putty
+
+Windows machines don't have build in ssh.
+However, [PuTTY](https://www.putty.org) provides the same functionality.
+PuTTY provides a command line interface as well as a GUI.
+
+#### VSCode (both Windows and Mac)
+
+You can also use VSCode to ssh into an online server.
+To do this, you need the [Remote-SSH VSCode extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) (may or may not already be installed).
+To connect to a server in VSCode using ssh, access the VSCode command pallette (`ctrl + shift + P`) and type `ssh`.
+The `Remote-SSH: Connect to Host...` option will let you input a server to connect to.
+
+## Set up Torch with Cuda
+
+These instructions are from the [PyTorch installation instructions](https://pytorch.org/get-started/locally/).
+If CUDA is available, torch will probably find it when installing.
+```
+pip install torch
+```
+
+
+To see if CUDA is set, up, run:
+```{python}
+import torch
+
+# Get cpu, gpu or mps device for training.
+device = (
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps"
+    if torch.backends.mps.is_available()
+    else "cpu"
+)
+print(f"Using {device} device")
+
+```
+
+
+
+## Homework - Neural Newtorks
+
+Run your previous homework (HW_05) on the Jules ACS server.
+Do you observe any change in computation speed?
+Explain why you think the computation speed is faster/slower/the same as before?
+
+__Note: You may have issues rendering Quarto if you set up a virtual environment.
+To solve these issues, you need to set the `QUARTO_PYTHON` environment variable to the path of the python executable in your virtual environment.__
