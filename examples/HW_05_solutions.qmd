@@ -1,0 +1,226 @@
+---
+title: "Homework 5"
+format: 
+    html:
+        embed-resources: true
+---
+
+
+__Due Date:__ 2024-11-20 at 8:30 AM PT
+---
+
+
+__Name:__ \<your name here\>
+
+
+## Preparation
+
+1. We're using the same [data file](https://github.com/gabehassler/PRGS-Intro-to-ML-2024/blob/main/data/processed/svi_covid.csv) from GitHub as the last assignment.
+If should be in the _data/processed_ folder.
+
+
+
+## Homework - Neural Newtorks
+
+1. Use a simple neural network to predict the number of per-capita COVID-19 deaths in each county in the US using the SVI variables.
+The outcome variable is `total_deaths_per_100k` and the predictor variables are `EP_POV150, EP_UNEMP, EP_HBURD, EP_NOHSDP, EP_UNINSUR, EP_AGE65, EP_AGE17, EP_DISABL, EP_SNGPNT, EP_LIMENG, EP_MINRTY, EP_MUNIT, EP_MOBILE, EP_CROWD, EP_NOVEH, EP_GROUPQ, EP_NOINT`.
+The neural network should have one hidden layer with 10 nodes and use the ReLU activation function.
+Plot the predicted values against the true values.
+What is the mean squared error of the predictions in the test set?
+
+2. Repeat the analysis from the previous question, but this time use a more complicated neural network with more hidden layers and/or more nodes in the hidden layers.
+You should experiment with different architectures and activation functions to see what works best.
+Plot the predicted values against the true values.
+What is the mean squared error of the predictions in the test set?
+
+3. Compare the predictions of the neural network in Question 2 to the predictions of the regression tree from the previous assignment. Which model would you use to predict the number of per-capita COVID-19 deaths? Why?
+Which model would you use to understand the relationship between the SVI variables and the number of per-capita COVID-19 deaths? Why?
+
+```{python}
+print("hello world")
+```
+
+```{python}
+import torch
+from torch import nn
+from torch.utils.data import random_split
+from torch.utils.data import DataLoader, Dataset
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+torch.manual_seed(777) # for reproducibility
+
+# special PyTorch class for loading data
+class PandasDataset(Dataset):
+    def __init__(self, dataframe, predictors, outcome):
+        x = np.array(dataframe[predictors].values).reshape(-1, len(predictors))
+        y = np.array(dataframe[outcome].values).reshape(-1, 1)
+        self.x = torch.tensor(x, dtype=torch.float32)
+        self.y = torch.tensor(y, dtype=torch.float32)
+
+    def __len__(self):
+        return len(self.x)
+
+    def __getitem__(self, idx):
+        return self.x[idx], self.y[idx]
+
+df = pd.read_csv('../data/processed/svi_covid.csv')
+# remove missing values
+df = df.dropna()
+
+# standardize the outcome variable
+df["total_deaths_per_100k"] = (df["total_deaths_per_100k"] - df["total_deaths_per_100k"].mean()) / df["total_deaths_per_100k"].std()
+
+predictors = [
+    "EP_POV150", "EP_UNEMP", "EP_HBURD", "EP_NOHSDP", "EP_UNINSUR", 
+    "EP_AGE65", "EP_AGE17", "EP_DISABL", "EP_SNGPNT", "EP_LIMENG", 
+    "EP_MINRTY", "EP_MUNIT", "EP_MOBILE", "EP_CROWD", "EP_NOVEH", 
+    "EP_GROUPQ", "EP_NOINT"
+]
+outcome = "total_deaths_per_100k"
+dataset = PandasDataset(df, predictors, outcome)
+
+train_perc = 0.8 # 80% of the data will be used for training
+train_size = int(train_perc * len(dataset))
+test_size = len(dataset) - train_size
+train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+
+device = (
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps"
+    if torch.backends.mps.is_available()
+    else "cpu"
+)
+# device = "cpu"
+
+print(f"Using {device} device")
+
+inner_dim = 512
+
+class NeuralNetwork(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear_relu_stack = nn.Sequential(
+            nn.Linear(17, inner_dim),
+            nn.ReLU(),
+            nn.Linear(inner_dim, inner_dim),
+            nn.ReLU(),
+            nn.Linear(inner_dim, inner_dim),
+            nn.ReLU(),
+            nn.Linear(inner_dim, inner_dim),
+            nn.ReLU(),  
+            nn.Linear(inner_dim, inner_dim),
+            nn.ReLU(),                  
+            nn.Linear(inner_dim, 1),
+        )
+
+    def forward(self, x):
+        estimates = self.linear_relu_stack(x)
+        return estimates
+
+model = NeuralNetwork().to(device) # load the model onto the appropriate device
+
+loss_fn = nn.MSELoss()
+optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+
+def train(dataloader, model, loss_fn, optimizer, losses):
+    size = len(dataloader.dataset)
+    num_batches = len(dataloader)
+    model.train()
+    train_loss = 0
+    for batch, (X, y) in enumerate(dataloader):
+        X, y = X.to(device), y.to(device)
+
+        # Compute prediction error
+        pred = model(X)
+        loss = loss_fn(pred, y)
+
+        # Backpropagation
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+
+        train_loss += loss.item()
+    train_loss /= num_batches
+    losses.append(train_loss)
+
+def test(dataloader, model, loss_fn, losses):
+    size = len(dataloader.dataset)
+    num_batches = len(dataloader)
+    model.eval()
+    test_loss = 0
+    with torch.no_grad():
+        for X, y in dataloader:
+            X, y = X.to(device), y.to(device)
+            pred = model(X)
+            test_loss += loss_fn(pred, y).item()
+    test_loss /= num_batches
+    losses.append(test_loss)
+
+batch_size = 256 # number of observations to use in each iteration
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+
+train_losses = []
+test_losses = []
+
+```
+
+```{python}
+
+epochs = 500 # you will want to play with this number
+for t in range(epochs):
+    if t % 100 == 0:
+        print(f"Epoch {t}")
+    train(train_loader, model, loss_fn, optimizer, train_losses)
+    test(test_loader, model, loss_fn, test_losses)
+print("Done!")
+
+print(f"Final train loss: {train_losses[-1]}")
+print(f"Final test loss: {test_losses[-1]}")
+
+```
+
+
+```{python}
+
+plt.plot(train_losses[10:], label="train")
+plt.plot(test_losses[10:], label="test")
+plt.legend()
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.show()
+plt.close()
+
+```
+
+# plot the predictions against the actual values
+```{python}
+model.eval()
+with torch.no_grad():
+    X_test, y_test = test_dataset[:]
+    y_pred = model(X_test.to(device)).cpu().numpy()
+plt.scatter(y_test, y_pred, alpha = 0.2)
+plt.axline((0, 0), slope = 1, color = "red")
+plt.xlabel("Actual")
+plt.ylabel("Predicted")
+plt.show()
+plt.close()
+
+```
+
+```{python}
+
+model.eval()
+with torch.no_grad():
+    X_train, y_train = train_dataset[:]
+    y_pred = model(X_train.to(device)).cpu().numpy()
+plt.scatter(y_train, y_pred, alpha = 0.2)
+plt.axline((0, 0), slope = 1, color = "red")
+plt.xlabel("Actual")
+plt.ylabel("Predicted")
+plt.show()
+plt.close()
+```
