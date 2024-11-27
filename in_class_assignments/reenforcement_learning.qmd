@@ -1,0 +1,74 @@
+---
+title: "Reenforcement Learning In-Class Activity"
+format: 
+    html:
+        embed-resources: true
+---
+
+
+## Rock-Paper-Scissors
+
+While many people thing that Rock-Paper-Scissors is a game of chance, there are cognitive biases that can be exploited to win more often.
+In this activity, you will implement a simple Rock-Paper-Scissors game and a simple strategy to exploit a cognitive bias.
+
+I have written code the implements a simplefied version of how humans (on average) play rock paper scissors.
+
+```{python}
+
+import random
+
+OPTIONS = ["rock", "paper", "scissors"]
+
+# basic rules of the game
+def points(player, opponent):
+    if player == opponent:
+        return 0
+    if player == "rock" and opponent == "scissors":
+        return 1
+    if player == "scissors" and opponent == "paper":
+        return 1
+    if player == "paper" and opponent == "rock":
+        return 1
+    return -1
+
+# basic rules of the game
+def beats_move(move):
+    if move == "rock":
+        return "paper"
+    if move == "paper":
+        return "scissors"
+    if move == "scissors":
+        return "rock"
+    return None
+
+# create the weighted probability vector
+def biased_move(ind, bias):
+    vec = [0.0, 0.0, 0.0]
+    for (i, v) in enumerate(vec):
+        if i == ind:
+            vec[i] = 1 / 3 + bias
+        else:
+            vec[i] = 1 / 3 - bias / 2
+    return vec
+
+# determine how a player will play based on their last move and the last move of their opponent
+def human_player(last_move, last_opponent_move, bias = 0.33):
+    points_last = points(last_move, last_opponent_move)
+    if points_last == 1: # player won last round
+        ind = OPTIONS.index(last_move) # more likely to play the same move
+    elif points_last == -1: # player lost last round
+        ind = OPTIONS.index(beats_move(last_opponent_move)) # more likely to play the move that beats the opponent's last move
+    else: # player tied last round
+        ind = OPTIONS.index(last_move)
+        bias = -bias / 2 # player is less likely to play the same move
+    
+    wv = biased_move(ind, bias)
+    return random.choices(OPTIONS, weights = wv)[0]
+
+```
+
+## Task
+Program a simple Rock-Paper-Scissors game that allows a human to play against the computer.
+The computer will use the `human_player` function to determine its move.
+Use reenforcement learning to train the computer to play optimally against the `human_player` function.
+The state space is the last move of the player and the last move of the opponent.
