@@ -41,6 +41,16 @@ def beats_move(move):
         return "rock"
     return None
 
+def loses_move(move):
+    if move == "rock":
+        return "scissors"
+    if move == "paper":
+        return "rock"
+    if move == "scissors":
+        return "paper"
+    return None
+
+
 
 OPTIONS = ["rock", "paper", "scissors"]
 
@@ -58,6 +68,31 @@ def human_player(last_move, last_opponent_move, bias = 0.33):
     
     return random.choices(OPTIONS, weights = wv)[0]
 
+def human_player2(last_move, last_opponent_move, bias = 0.33):
+    points_last = points(last_move, last_opponent_move)
+    if points_last == 1:
+        ind = OPTIONS.index(last_move)
+    elif points_last == -1:
+        ind = OPTIONS.index(beats_move(last_opponent_move))
+    else:
+        ind = OPTIONS.index(last_move)
+        bias = -bias / 2
+    
+    wv = points_bias(ind, bias)
+    return random.choices(OPTIONS, weights = wv)[0]
+
+    
+
+    # last_points = points(last_move, last_opponent_move)
+    # if last_points == 1:
+    #     wv = points_bias(OPTIONS.index(last_move), bias)
+    # elif last_points == -1:
+    #     wv = points_bias(OPTIONS.index(last_opponent_move), bias)
+    # else:
+    #     wv = points_bias(OPTIONS.index(last_move), 0.0)
+    
+    return random.choices(OPTIONS, weights = wv)[0]
+
 
 def computer_player(last_move, last_opponent_move, M):
     if last_move == None:
@@ -68,7 +103,15 @@ def computer_player(last_move, last_opponent_move, M):
     wv = M[ind1, ind2, :]
     return random.choices(OPTIONS, weights = wv)[0]
 
-def perturb_M(M, epsilon = 0.01):
+def computer_player2(last_move, last_opponent_move, v):
+    winning_move = beats_move(last_opponent_move)
+    losing_move = loses_move(last_opponent_move)
+    ties_move = last_opponent_move
+    inds = [OPTIONS.index(winning_move), OPTIONS.index(losing_move), OPTIONS.index(ties_move)]
+
+    return random.choices([OPTIONS[i] for i in inds], weights = v)[0]
+
+def perturb_M(M, epsilon = 0.1):
     inds = np.random.randint(0, 3, 2)
     v = M[inds[0], inds[1], :]
     v = v + np.random.normal(0, epsilon, 3)
@@ -76,15 +119,19 @@ def perturb_M(M, epsilon = 0.01):
     M[inds[0], inds[1], :] = v / np.sum(v)
     return M
 
+def perturb_v(v, epsilon = 0.1):
+    v = v + np.random.normal(0, epsilon, 3)
+    v = np.clip(v, 0, 1)
+    return v / np.sum(v)
 
-
-def play_game(M, rounds = 10000):
-    human_move = None
-    computer_move = None
+def play_game(M, rounds = 1000):
+    human_move = random.choice(OPTIONS)
+    computer_move = random.choice(OPTIONS)
     score = 0
     for i in range(rounds):
         computer_move_new = computer_player(computer_move, human_move, M)
-        human_move_new = human_player(human_move, computer_move)
+        human_move_new = human_player2(human_move, computer_move)
+
         computer_move = computer_move_new
         human_move = human_move_new
         score += points(computer_move, human_move)
@@ -93,13 +140,14 @@ def play_game(M, rounds = 10000):
 
 
 M = np.ones((3, 3, 3)) / 3
+# M = np.ones(3) / 3
 print(play_game(M))
 
 
 M_old = M.copy()
 M_original = M.copy()
 
-for i in range(10000):
+for i in range(1000):
     M = perturb_M(M_old.copy())
     pm = play_game(M)
     pmo = play_game(M_old)
@@ -119,11 +167,23 @@ print(play_game(M))
 
 
 
-        
+# v = [.99, 0.005, 0.005]
+# computer_player2("rock", "scissors", v)
     
 
     
     
 
+
+```
+
+
+```{python}
+
+v = [.005, 0.005, 0.099]
+# computer_player2("scissors", "rock", v)
+play_game(v)
+
+# human_player2("scissors", "rock", 0.66)
 
 ```
