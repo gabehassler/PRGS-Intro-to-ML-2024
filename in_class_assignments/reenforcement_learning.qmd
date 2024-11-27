@@ -16,6 +16,7 @@ I have written code the implements a simplefied version of how humans (on averag
 ```{python}
 
 import random
+import numpy as np
 
 OPTIONS = ["rock", "paper", "scissors"]
 
@@ -64,6 +65,60 @@ def human_player(last_move, last_opponent_move, bias = 0.33):
     
     wv = biased_move(ind, bias)
     return random.choices(OPTIONS, weights = wv)[0]
+
+def computer_player(last_move, last_opponent_move, M):
+    ind_human = OPTIONS.index(last_opponent_move)
+    ind_computer = OPTIONS.index(last_move)
+    prob_vec = M[ind_human, ind_computer]
+    return random.choices(OPTIONS, weights = prob_vec)[0]
+
+    
+
+def play_games(n_games, M):
+    human_move = random.choice(OPTIONS)
+    computer_move = random.choice(OPTIONS)
+    score = 0
+    for i in range(n_games):
+        new_human_move = human_player(human_move, computer_move)
+        new_computer_move = computer_player(computer_move, human_move, M)
+        score += points(new_computer_move, new_human_move)
+        human_move = new_human_move
+        computer_move = new_computer_move
+    
+    return score / n_games
+
+def updade_M(M, sd = 0.1):
+    ind0 = random.choices(range(3))[0]
+    ind1 = random.choices(range(3))[0]
+
+    v = M[ind0, ind1]
+    v += np.random.normal(0, sd)
+    v = [max(0, min(1, x)) for x in v]
+    v = [x / sum(v) for x in v]
+
+    M[ind0, ind1] = v
+
+    return M
+
+M = np.random.uniform(0, 1, (3, 3, 3))
+
+p_win_original = play_games(1000, M)
+print(f"Original: {p_win_original}")
+
+iters = 1000
+for i in range(iters):
+    M_old = M.copy()
+    M = updade_M(M)
+    p_win_old = play_games(1000, M_old)
+    p_win_new = play_games(1000, M)
+    if p_win_new < p_win_old:
+        M = M_old
+    if (i + 1) % 100 == 0:
+        print(f"Iteration {i + 1}: {p_win_new}")
+        
+
+
+
 
 ```
 
