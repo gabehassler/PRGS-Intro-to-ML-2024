@@ -1,0 +1,158 @@
+---
+title: "Homework 5"
+format: 
+    html:
+        embed-resources: true
+---
+
+```{python}
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, Dataset
+import numpy as np
+import pandas as pd
+
+
+# Get cpu, gpu or mps device for training.
+device = (
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps"
+    if torch.backends.mps.is_available()
+    else "cpu"
+)
+print(f"Using {device} device")
+
+
+
+# special PyTorch class for loading data
+class PandasDataset(Dataset):
+    def __init__(self, dataframe, predictors, outcome):
+        x = np.array(dataframe[predictors].values).reshape(-1, len(predictors))
+        y = np.array(dataframe[outcome].values).reshape(-1, 1)
+        self.x = torch.tensor(x, dtype=torch.float32)
+        self.y = torch.tensor(y, dtype=torch.float32)
+        self.predictors = predictors
+        self.outcome = outcome
+
+    def __len__(self):
+        return len(self.x)
+
+    def __getitem__(self, idx):
+        return self.x[idx], self.y[idx]
+
+class NeuralNetwork(nn.Module):
+    def __init__(self, input_dim, hidden_dim):
+        super().__init__()
+        self.linear_relu_stack = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),  
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),                  
+            nn.Linear(hidden_dim, 1),
+        )
+
+    def forward(self, x):
+        estimates = self.linear_relu_stack(x)
+        return estimates
+
+model = torch.load("../models/neural_network.pkl", weights_only=False)
+model.eval()
+
+import pickle as pkl
+all_data = pkl.load(open("../models/data.pkl", "rb"))
+
+data = all_data['test_dataset']
+
+
+def check_bias(model, data, predictors, variable, quantiles = 4):
+    ind = predictors.index(variable)
+    X, y = data[:]
+    x = X[:, ind]
+    # get quantiles
+    q = np.quantile(x, np.linspace(0, 1, quantiles + 1))
+    q[-1] = q[-1] + 1e-6
+
+    # split data into quantiles
+    quantile_inds = np.digitize(x, q)
+    datasets = []
+    for i in range(quantiles):
+        mask = quantile_inds == i + 1
+        x_q = X[mask]
+        y_q = y[mask]
+        df = pd.DataFrame(x_q, columns=predictors)
+        df["NA"] = y_q
+        datasets.append(
+            PandasDataset(
+                df,
+                predictors,
+                "NA",
+            )
+        )
+    
+    mse = []
+    bias = []
+    for (i, dataset) in enumerate(datasets):
+        loader = DataLoader(dataset, batch_size=len(dataset), shuffle=False)
+        assert len(loader) == 1
+        mse_q = 0
+        bias_q = 0
+        for x, y in loader:
+            y_pred = model(x).detach().numpy()
+            mse_q += np.mean((y_pred - y.numpy()) ** 2)
+            bias_q += np.mean(y_pred - y.numpy())
+        mse.append(mse_q / len(loader))
+        bias.append(bias_q / len(loader))
+
+    return pd.DataFrame({
+        "quantile": np.arange(1, quantiles + 1),
+        "mse": mse,
+        "bias": bias
+    })
+
+predictors = all_data['dataset'].predictors
+
+preds = [check_bias(model, data, predictors, predictor, quantiles=5) for predictor in predictors]
+
+for i, pred in enumerate(preds):
+    pred["predictor"] = predictors[i]
+
+pred_df = pd.concat(preds)
+
+import matplotlib.pyplot as plt
+
+def plot_all(df, attribute, predictors = None):
+    if predictors is None:
+        predictors = df["predictor"].unique()
+    fig, ax = plt.subplots()
+    for key, grp in df[df["predictor"].isin(predictors)].groupby("predictor"):
+        ax = grp.plot(ax=ax, kind='line', x='quantile', y=attribute, label=key)
+    # axis labels
+    plt.xlabel("Quantile")
+    plt.ylabel(attribute)
+
+    # move key to the outside
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+    # save
+    plt.tight_layout(rect=[0, 0, 1, 1])
+    plt.show()
+    # plt.savefig(f"plots/{attribute}.png", bbox_inches='tight')
+
+```
+
+```{python}
+
+plot_all(pred_df, "mse")
+
+plot_all(pred_df, "bias")
+
+# plot_all(pred_df, "mse", predictors=["EP_POV150"])
+
+```
