@@ -2,7 +2,7 @@
 
 ## Setup
 
-Before class on Wednesday, October 9, I would like you to:
+Before class on Wednesday, October 8, I would like you to:
 
 * Install [git](https://git-scm.com/) on your computer
 * Install a code editor (e.g., [Visual Studio Code](https://code.visualstudio.com/), [R Studio](https://www.rstudio.com/)) on your computer
@@ -24,7 +24,7 @@ Before class on Wednesday, October 9, I would like you to:
     * You'll want to initialize the repository with a README file (this is one of the options when you create the repository)
     * Either make sure your repository is public or add [me](https://github.com/gabehassler) as a collaborator
     * You may name your repository whatever you like, but I recommend something like "PRGS-Intro-to-ML-2024"
-* Add the link to your GitHub repository in this [Excel sheet](https://randus.sharepoint.com/sites/560IntroductiontoMachineLearningAY2024-25FallQuarter/Shared%20Documents/General/Miscellaneous/GitHub%20Repos.xlsx?d=w4f2c7ccb42bb4dceb0a204f7d8a6903e&csf=1&web=1&e=VVSDp7) on the class Teams page.
+* Add the link to your GitHub repository to a Google Form that I will send to you via Populi.
 
 
 ## Homework
@@ -53,6 +53,7 @@ Each week:
     * Don't commit the HTML output in your develop branch.
 6. Merge the 'develop' branch into the 'main' branch.
 8. Output the results of your notebook to an .html file and commit that .html file to the 'main' branch.
+    * __NOTE: The HTML file should have a filename "HW_XX.html", using exact capitalization and exactly 2 digits for "XX". Acceptable filenames include "HW_01.html", "HW_02.html", and "HW_10.html". Unacceptable filenames include "HW_1.html", "hw_01.html", "HW-01.html", and "HW_01.HTML".__
 9. Push your changes to your GitHub repo.
 
 
