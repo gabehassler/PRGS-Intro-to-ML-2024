@@ -21,6 +21,8 @@ For this assignment, you will practice downloadings, cleaning, and analyzing dat
 1. Inside the 'data' folder, create a 'raw' folder.
 1. Add and commit a '.gitignore' file to the root directory of this repository that excludes all contents of the 'data' folder.
 1. Download the county-level NRI and SVI data for the entire United States. Place the data in the 'data/raw' folder.
+    - NRI data: Download the "All Counties - County-level detail (Table)" CSV file from [here](https://hazards.fema.gov/nri/data-resources#csvDownload).
+    - SVI data: Download the 2022 county-level dataset (CSV format) from [here](https://www.atsdr.cdc.gov/place-health/php/svi/svi-data-documentation-download.html).
 1. In the repository README, provide a brief (1-2 sentence) description of each file in the 'data' folder and a link to the original source of the data.
 
 ## Task 1 - NRI Data Cleaning
