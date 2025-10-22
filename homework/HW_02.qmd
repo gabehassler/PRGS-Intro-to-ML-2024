@@ -55,7 +55,8 @@ __5. Assuming that a risk that is "not applicable" to a county has an annualized
 ## Task 2 - SVI Data Cleaning
 
 __1. Import the SVI data. Ensure that the FIPS code is correctly identified as a string / character variable. Otherwise, the leading zeros will be removed.__
-__1. Subset the SVI data to include only the following columns:__
+
+__2. Subset the SVI data to include only the following columns:__
 `ST, STATE, ST_ABBR, STCNTY, COUNTY, FIPS, LOCATION, AREA_SQMI, E_TOTPOP, EP_POV150, EP_UNEMP, EP_HBURD, EP_NOHSDP, EP_UNINSUR, EP_AGE65, EP_AGE17, EP_DISABL, EP_SNGPNT, EP_LIMENG, EP_MINRTY, EP_MUNIT, EP_MOBILE, EP_CROWD, EP_NOVEH, EP_GROUPQ, EP_NOINT, EP_AFAM, EP_HISP, EP_ASIAN, EP_AIAN, EP_NHPI, EP_TWOMORE, EP_OTHERRACE`
 ```
 # your code here
@@ -86,6 +87,16 @@ __3. Create a table / dataframe that shows the number of missing values in each 
 
 __1. For each numerical variable in the merged dataset, plot a histogram showing the distribution of values.
 (Hint: write a function to make the histogram for a single variable, then use a loop or apply function to make the histograms for all numerical variables.)__
+
+```
+# your code here
+```
+
+## Task 5 - Save Data
+
+__1. Create a 'processed' folder within the 'data' folder.__
+
+__2. Save the merged data file to the 'processed' folder.__
 
 ```
 # your code here
