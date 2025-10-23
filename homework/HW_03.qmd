@@ -1,29 +1,41 @@
 ---
 title: "Homework 3"
-format: 
+format:
     html:
         embed-resources: true
 ---
 
 
-__Due Date:__ 2022-10-30 at 8:30 AM PT
+__Due Date:__ 2025-10-29 at 3 PM ET
 ---
 
 
-__Name:__ \<your name here\>
+# Theoretical Component
+
+__Complete the following problems and email your solutions to Carter Price (price@rand.org) and Gabriel Hassler (ghassler@rand.org) by the due date. The subject line should read: "Intro to ML HW 03". Complete the problems manually (i.e., do not use Python code).__
+
+1. Do the first three iterations of gradient descent $x_{k+1}=x_k-{hf}^1\left(x_k\right)$, where $f^1\left(x_k\right)$ is the first derivative of $f\left(x\right)$ for the function $f(x)=\ x^2$ with step size h=0.5 and starting point $x_0=0.5$.
+
+1. The first two eigenvectors from a Principal Component Analysis are $x_1=\left[\begin{matrix}1\\0\\1\\\end{matrix}\right]$ and $x_2=\left[\begin{matrix}0\\1\\0\\\end{matrix}\right]$.
+    a. Show that $x_1$ and $x_2$ are orthogonal (that is to say, show that $x_1^Tx_2=0$).
+    a. If the variables for this are blood pressure, body mass index, and cholesterol level, respectively, describe in words how to practically interpret $x_1$ and $x_2$. In words, how would you describe the meaning of those eigenvectors, so “a big value for the first principal component means that…”.
+
+1. Why might dimension reduction be useful for visualization? What is a concern about dimension reduction for visualization?
+
+# Programming Component
+
+__Submit this component of the homework via GitHub by the due date.__
 
 
 ## Preparation
 
-1. Create a 'code' folder in the root directory of your repository.
-1. Inside the 'code' folder, create a file '01_clean_data.\<your_extension_here\>'.
-Your extension should be the one you use for your programming language of choice (e.g., '.R' for R, '.py' for Python, '.jl' for Julia).
-1. Copy any code from HW_02 you need to subset and merge the NRI and SVI datasets into the '01_clean_data' file.
-1. Add a 'processed' directory to the 'data' folder.
-1. Add a line at the end of the file that saves the merged dataset to 'data/processed' directory.
-1. Run the '01_clean_data' file to ensure that the merged dataset runs and creates the proper file.
-1. Add and commit the '01_clean_data' file to the repository.
 
+1. Add a 'processed' directory to the 'data' folder in your repository.
+1. Add a line at the end of the HW_02.ipynb file that saves the merged and cleaned dataset to 'data/processed' directory.
+1. Run the HW_02.ipynb file to create the processed data file.
+1. Commit and push your changes to GitHub.
+
+__NOTE__: Do not include the data files in your GitHub repository. Make sure your .gitignore file is set up to ignore data files.
 
 
 ## Homework - Principal Component Analysis
@@ -44,24 +56,28 @@ Here, we are going to use the CDC SVI data to create an alternative index based 
     Conversely, if you have a general missingness pattern where missing observations are scattered throughout the data, imputation is likely the best option._
     a. After dealing with the missing data, perform PCA on the SVI variables.
 
-    
+
 
 1. Plot the eigenvectors or loadings associated of the first three principal components.
 Make sure that the axis labels correspond to the variable names and not the indices of the variables.
 How would you interpret the first three prinicpal components?
 _Note: you can find the documentation for the SVI variables [here](https://www.atsdr.cdc.gov/placeandhealth/svi/documentation/SVI_documentation_2022.html)._
-1. There are several different ways to determine the number of principal components to retain.
+1. People often use PCA in downstream analyses (e.g., regression).
+When doing this, they need to choose the number of principal components to use in the analysis.
+There are several different ways to determine the number of principal components to retain.
 One common method is to retain principal components that explain a certain percentage of the variance in the data.
     a. How many principal components are needed to explain 80% of the variance in the data?
     a. How many principal components are needed to explain 90% of the variance in the data?
 1. An alternative approach is to plot the eigenvalues of the principal components and retain the components that are above the "elbow" in the plot. In other words the eigenvalues that are substantially larger than the rest.
     a. Create a [scree plot](https://en.wikipedia.org/wiki/Scree_plot) of the eigenvalues of the principal components.
     a. How many principal components should be retained based on the scree plot? This video may help: [PCA Scree Plot](https://youtu.be/vFUvNICWVz4?si=6NbyRcLRGT8L1HzI)
-1. Cross-validation is another method to determine the number of principal components to retain.
+1. Plot the first principal component score on a map of the US counties.
+Briefly describe any spatial patterns you see.
+<!-- 1. Cross-validation is another method to determine the number of principal components to retain.
 This process requires some linear algebra that is beyond the scope of this course.
 As such, I have written example [code](https://github.com/gabehassler/PRGS-Intro-to-ML-2024/blob/main/examples/pca_cross_validation.jl) in Julia that demonstrates how to perform cross-validation.
 This procedure is a simplified versionof an approach explained in this [blog post](https://alexhwilliams.info/itsneuronalblog/2018/02/26/crossval/).
 For the purposes of this assignment, the `pca_cv_error` function is a black box that returns the cross-validation error for a given number of principal components.
 _Note: If you use a different programming language, you can use ChatGPT to translate the code to your language of choice._
     a. Compute the cross-validation error for 1 to 17 principal components. If this process is parallelizable, parallelize the code. If setting a random number seed would make this work more reproducible, set a random number seed.
-    a. How many principal components should be retained based on the cross-validation error?
+    a. How many principal components should be retained based on the cross-validation error? -->

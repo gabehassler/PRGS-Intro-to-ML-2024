@@ -1,0 +1,178 @@
+---
+title: "Cross Validation Example"
+format:
+    html:
+        embed-resources: true
+---
+
+
+<!--
+
+For this assignment, you work with the data from the [National Risk Index (NRI)](https://hazards.fema.gov/nri/) and the [CDC Social Vulnerability Index (SVI)](https://www.atsdr.cdc.gov/placeandhealth/svi/index.html) that you processed last time.
+
+## Task 1 - Data Preparation
+
+__1. Import the merged dataset that you created in HW_02.
+Subset that dataset so that there are no missing observations.
+Finall, standardize all numeric colums to have mean 0 and standard deviation 1.__
+
+```
+# your code here
+```
+
+__2. Split the data into a 90% test set and 10% validation set.__
+
+```
+# your code here
+```
+
+## Task 2 - OLS Regression
+
+We are not going to see if we can build a model that predicts county-level poverty rates based on other social vulnerability measurements + natural hazards.
+
+__1. Fit an OLS linear regression model to the training data where XXXX is the outcome and YYYY are the predictors.
+__
+
+```
+# your code here
+```
+
+__2. Use the model fit to the training data to generate predictions for both the training and validation data.
+Then, calculate the RMSE for both.
+Which produces the lower RMSE?
+Why do you think this is?__
+
+
+```
+# your code here
+```
+
+## Task 3 - LASSO -->
+
+## Introduction
+
+LASSO is a special form of linear regression that places an additional penalty on the regression coefficients.
+
+In OLS, the objective function is:
+
+
+\def\coef{\beta_1,\dots,\beta_P}
+\begin{equation}
+f(\coef) = \sum_{i}{\left(y_i - \sum_{j}\beta_j x_{ij}\right)^2}
+\end{equation}
+
+With LASSO, the objective function is:
+
+\begin{equation}
+f(\coef) = \sum_{i}{\left(y_i - \sum_{j}\beta_j x_{ij}\right)^2} + \alpha\sum_{j}\left|\beta_j\right|
+\end{equation}
+
+Unlike OLS, LASSO has a tuning parameter $\alpha$ that controls the strength of the penalty on the regression coefficients.
+In other words, LASSO assumes a value of $\alpha$ rather than trying to find the $\alpha$ that minimizes the objective function.
+
+LASSO is designed to prevent overfitting by shrinking some of the regression coefficients to 0, essentially those variables from the regression.
+
+
+## Prediction with OLS
+
+```{python}
+
+from sklearn.linear_model import LinearRegression
+import math
+import random
+import pandas as pd
+from sklearn.linear_model import LassoCV
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+
+
+merged_data = pd.read_csv("data/processed/nri_svi_merged.csv")
+
+
+
+# set seed
+
+random.seed(666)
+
+validation_fraction = 0.9
+
+merged_data_complete = merged_data.dropna()
+
+
+validation_inds = merged_data_complete.sample(frac=validation_fraction, random_state=1).index
+train_inds = merged_data_complete.index.difference(validation_inds)
+
+
+outcome = 'EP_POV150'
+
+# get all columns that end with 'AFREQ'
+freq_vars = [col for col in merged_data_complete.columns if col.endswith('AFREQ')]
+other_vars = ['AREA_SQMI',
+       'E_TOTPOP', 'EP_POV150', 'EP_UNEMP', 'EP_HBURD', 'EP_NOHSDP',
+       'EP_UNINSUR', 'EP_AGE65', 'EP_AGE17', 'EP_DISABL', 'EP_SNGPNT',
+       'EP_LIMENG', 'EP_MINRTY', 'EP_MUNIT', 'EP_MOBILE', 'EP_CROWD',
+       'EP_NOVEH', 'EP_GROUPQ', 'EP_NOINT', 'EP_AFAM', 'EP_HISP', 'EP_ASIAN',
+       'EP_AIAN', 'EP_NHPI', 'EP_TWOMORE', 'EP_OTHERRACE']
+
+numerical_cols = freq_vars + other_vars
+
+# predictors = numerical_cols.tolist()
+predictors = numerical_cols.copy()
+predictors.remove(outcome)
+
+X_train = merged_data_complete.loc[train_inds, predictors]
+y_train = merged_data_complete.loc[train_inds, outcome]
+X_val = merged_data_complete.loc[validation_inds, predictors]
+y_val = merged_data_complete.loc[validation_inds, outcome]
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+
+y_pred = model.predict(X_val)
+
+rmse = math.sqrt(((y_val - y_pred) ** 2).mean())
+
+print(f'RMSE: {rmse}')
+
+```
+
+
+## Prediction with LASSO
+
+```{python}
+
+
+model = make_pipeline(
+    StandardScaler(),
+    LassoCV(cv=10, random_state=1)
+)
+
+model.fit(X_train, y_train)
+y_pred = model.predict(X_val)
+rmse = math.sqrt(((y_val - y_pred) ** 2).mean())
+print(f'RMSE: {rmse}')
+
+
+
+
+# show RMSE for each alpha
+lasso = model.named_steps['lassocv']
+mse_path = lasso.mse_path_.mean(axis=1)
+min_mse = mse_path.min()
+min_mse_alpha = lasso.alphas_[mse_path.argmin()]
+alphas = lasso.alphas_
+plt.plot(alphas, [math.sqrt(mse) for mse in mse_path])
+# plot min alpha
+plt.axvline(min_mse_alpha, color='red', linestyle='--', label=f'Min MSE Alpha: {min_mse_alpha:.2e}')
+plt.xscale('log')
+plt.xlabel('Alpha')
+plt.ylabel('Root Mean Squared Error')
+plt.title('LassoCV Root Mean Squared Error Path')
+plt.show()
+
+zero_coef = (lasso.coef_ == 0).sum()
+print(f'Number of coefficients set to zero: {zero_coef} out of {len(lasso.coef_)}')
+
+```
