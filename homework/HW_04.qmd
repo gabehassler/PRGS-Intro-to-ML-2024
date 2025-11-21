@@ -1,38 +1,203 @@
 ---
-title: "Homework 4"
-format: 
-    html:
-        embed-resources: true
+title: "Homework 4: ACS Income Prediction"
+format:
+  html:
+    embed-resources: true
+execute:
+  python: env/bin/python3.11
+number-sections: false
 ---
 
+This homework assignment guides you through building and evaluating machine learning models to predict individual income using the American Community Survey (ACS) microdata. You will implement both an XGBoost model and a fully connected neural network using Keras, following the workflows demonstrated in the provided tutorials. The focus will be on log-transforming the income target, feature engineering, model training, and evaluation.
 
-__Due Date:__ 2024-11-13 at 8:30 AM PT
----
+## Setup
 
-
-__Name:__ \<your name here\>
-
-
-## Preparation
-
-1. Download the [data file](https://github.com/gabehassler/PRGS-Intro-to-ML-2024/blob/main/data/processed/svi_covid.csv) from GitHub and place it in the _data/processed_ folder.
+### Data
+Use the ACS microdata file `usa_00005.dta` that I shared on Populi. This dataset contains individual-level records with demographic and socioeconomic features, including total personal income (`inctot`).
 
 
+## Task 1: Load and Log-transform ACS Data
 
-## Homework - Regression Trees
+Following the final attempt in the XGBoost tutorial, sample 10% of the microdata, drop any rows where `inctot == 9999999`.
 
-The goal of this analysis is to use a regression tree to predict the number of per-capita COVID-19 deaths in each county in the US using the SVI variables.
+```{python}
 
-1. Load the data file.
-2. Write the following functions:
-    - A function that fits a regression tree to data. The function should take as input the data, the outcome variable, the predictor variables, and the maximum depth of the tree. The function should return the fitted tree.
-    _Note: Many packages have functions that penalize the complexity of the tree to avoide overfitting. You should make sure that the function you write does not use any penalization for the complexity of the tree._
-    - A function that predicts the outcome variable using a fitted tree. The function should take as input the fitted tree and the data for which to make predictions. The function should return the predicted values.
-    - A function that calculates the mean squared error of the predictions. The function should take as input the predicted values and the true values. The function should return the mean squared error.
-3. Use 5-fold cross-validation to calculate the mean squared error of the regression tree for maximum tree depths 1, ..., 10.
-The outcome variable is `total_deaths_per_100k` and the predictor variables are `EP_POV150, EP_UNEMP, EP_HBURD, EP_NOHSDP, EP_UNINSUR, EP_AGE65, EP_AGE17, EP_DISABL, EP_SNGPNT, EP_LIMENG, EP_MINRTY, EP_MUNIT, EP_MOBILE, EP_CROWD, EP_NOVEH, EP_GROUPQ, EP_NOINT`.
-4. Plot the mean squared error as a function of the maximum tree depth.
-5. Which maximum tree depth would you choose based on the cross-validation results? Why?
-6. Fit a regression tree to the full data using the maximum tree depth you chose in the previous question.
-7. Plot the fitted tree. Summarize the tree in words. What variables seem to be the most important predictors of the number of per-capita COVID-19 deaths?
-8. Plot the predicted values against the true values. How much would you trust the predictions of the regression tree? Why?
+```
+
+__Quesion 1:__ Why is it not necessary to impute or filter our missing values for other features?
+
+
+
+### Task 1.1: Log-transform Income
+
+Instead of predicting income directly, we will predict log-income.
+Create a new target column `log_inctot` by applying the natural log transformation to `inctot` after adding 1 (i.e., `np.log1p`).
+Filter out any rows where `inctot` is less than or equal to zero before applying the log transformation.
+Make a histogram of both the original income and log-income distributions to visualize the effect of the transformation.
+
+
+```{python}
+
+```
+
+__Question 2:__ What are the advantages of predicting log-income rather than income directly?
+
+
+
+## Task 2: Feature Engineering and Encoding
+Split the data into a feature matrix `X` and target vector `y` (the log-income column created above). Perform one-hot encoding on all categorical features, dropping sparse columns whose proportion of non-zero entries falls below 1%.
+The feature matrix `X` should include all columns except `inctot` and `log_inctot`.
+The target vector `y` should be the `log_inctot` column.
+Mimic the one-hot encoding workflow from the tutorial: build dummies for every categorical column in `X`, then drop sparse columns whose proportion of non-zero entries falls below 1%.
+
+```{python}
+
+```
+
+### Task 2.1: Train/Test Split
+Split the encoded data into training and testing sets (80/20).
+
+```{python}
+
+```
+
+## Task 3: XGBoost Modeling (Log Target)
+Reproduce the final modeling attempt from `examples/XGBoost.ipynb`, but treat the log-income target as the label. Work through the following subtasks and insert your own code in each block.
+
+### Task 3.1: Build DMatrix Objects
+Create `xgb.DMatrix` objects for both the training and test splits using the log-income labels.
+
+```{python}
+
+```
+
+### Task 3.2: Hyperparameter Dictionary
+Start from the tutorial’s baseline settings (e.g., `eta = 1`, `max_depth = 10`, `min_child_weight = 100`, RMSE metric, early stopping after 50 rounds) and justify any deviations you make.
+Use the `reg:squarederror` objective and `rmse` evaluation metric.
+
+```{python}
+
+```
+
+### Task 3.3: Hyperparameter Tuning
+
+Perform a grid search over the `eta = [1, 0.1, 0.01]` and `max_depth = [3, 6, 10]` parameters to identify the best combination based on validation RMSE (i.e., for each combination of `eta` and `max_depth`, train a model and record the validation RMSE).
+Use early stopping with a patience of 50 rounds and a maximum of 10,000 training rounds.
+
+```{python}
+
+```
+
+__Question 3:__ Which hyperparameter combination yielded the lowest validation RMSE, and what was that RMSE value?
+Based on the results, do you think you need to expand the grid search other values or parameters?
+(Note: You do not need to actually search for more parameters, just discuss.)
+
+### Task 3.4: Final Model Training
+Using the best hyperparameters from Task 3.3, train a final XGBoost model on the full dataset.
+
+```{python}
+
+
+```
+
+
+### Task 3.5: Evaluate Predictions
+Plot predicted vs. actual log-income values on the test set using a scatter plot.
+
+```{python}
+
+
+```
+
+__Question 4:__ Qualitatively, how well do the predictions align with the actual values?
+
+
+## Task 4: Neural Network Modeling (Keras)
+Use the structure from `examples/neural_nets_simple.ipynb` to fit a fully connected neural network on the same encoded features and log-income target.
+Use the same train/test split as in Task 2.1.
+
+### Task 4.1: Prepare Data for Keras
+If necessary, convert the training and test feature matrices and target vectors into NumPy arrays suitable for Keras.
+__Note:__ You may have already done this in Task 2.1.
+
+```{python}
+
+```
+
+
+### Task 4.2: Define the Architecture
+Implement a dense network with several ReLU-activated hidden layers (e.g., 256-128-64) and compile it with the Adam optimizer and MSE loss.
+
+__Question 5:__ What should the input dimension be for the first layer of the network be?
+
+```{python}
+
+```
+
+### Task 4.3: Initial Training
+Fit the model on the training data while validating on the test set.
+Run the training for a maximum of 1,000 epochs.
+I have some example code below that includes early stopping to prevent overfitting.
+You may adjust as needed.
+The `patience` parameter in the `EarlyStopping` callback controls how many epochs with no improvement on the validation loss to wait before stopping training.
+The `batch_size` is a parameter that we haven't discussed in class, but it limits the amount of data the model is exposed to at once during training.
+You can leave it at 1024 for this assignment.
+
+```{python}
+
+# history = nn_model.fit(
+#     X_train_arr,
+#     y_train_arr,
+#     validation_data=(X_test_arr, y_test_arr),
+#     epochs=1000,
+#     batch_size=1024,
+#     verbose=1,
+#     callbacks=[
+#         keras.callbacks.EarlyStopping(
+#             monitor="val_loss",
+#             patience=10,
+#             restore_best_weights=True,
+#         )
+#     ],
+# )
+
+```
+
+#### Task 4.3a
+Plot the training and validation loss curves over epochs.
+
+```{python}
+
+```
+
+__Question 6:__ Based on the loss curves, does the model appear to be underfitting, overfitting, or well-fitted? Justify your answer.
+
+
+### Task 4.4: Model Tuning
+The neural network architecture and training parameters can significantly impact performance.
+The architecture consists of the number of layers, layer dimensions, and activation functions.
+Create three different architectures: the one from Task 4.2, a deeper/wider one, and a shallower/narrower one.
+Additionally, consider three different learning rates: `1e-3`, `1e-4`, and `1e-5`.
+Perform a grid search over these architectures and learning rates to identify the best combination based on validation loss.
+__Hint:__ Save the models and their histories in a dictionary for easy comparison later.
+
+```{python}
+
+
+```
+
+
+__Question 7:__ Which architecture and learning rate combination yielded the lowest validation loss, and what was that loss value?
+
+
+### Task 4.5: Evaluate Predictions
+Generate predictions on the test set using the best model from Task 4.
+Create a scatter plot of predicted vs. actual log-income values.
+
+```{python}
+
+```
+
+
+## Task 5: Model Comparison and Reflection
+Which model would you choose for predicting log-income on new ACS data: the XGBoost model from Task 3 or the neural network from Task 4? Why?

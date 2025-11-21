@@ -1,0 +1,38 @@
+---
+title: "Homework 4"
+format: 
+    html:
+        embed-resources: true
+---
+
+
+__Due Date:__ 2024-11-13 at 8:30 AM PT
+---
+
+
+__Name:__ \<your name here\>
+
+
+## Preparation
+
+1. Download the [data file](https://github.com/gabehassler/PRGS-Intro-to-ML-2024/blob/main/data/processed/svi_covid.csv) from GitHub and place it in the _data/processed_ folder.
+
+
+
+## Homework - Regression Trees
+
+The goal of this analysis is to use a regression tree to predict the number of per-capita COVID-19 deaths in each county in the US using the SVI variables.
+
+1. Load the data file.
+2. Write the following functions:
+    - A function that fits a regression tree to data. The function should take as input the data, the outcome variable, the predictor variables, and the maximum depth of the tree. The function should return the fitted tree.
+    _Note: Many packages have functions that penalize the complexity of the tree to avoide overfitting. You should make sure that the function you write does not use any penalization for the complexity of the tree._
+    - A function that predicts the outcome variable using a fitted tree. The function should take as input the fitted tree and the data for which to make predictions. The function should return the predicted values.
+    - A function that calculates the mean squared error of the predictions. The function should take as input the predicted values and the true values. The function should return the mean squared error.
+3. Use 5-fold cross-validation to calculate the mean squared error of the regression tree for maximum tree depths 1, ..., 10.
+The outcome variable is `total_deaths_per_100k` and the predictor variables are `EP_POV150, EP_UNEMP, EP_HBURD, EP_NOHSDP, EP_UNINSUR, EP_AGE65, EP_AGE17, EP_DISABL, EP_SNGPNT, EP_LIMENG, EP_MINRTY, EP_MUNIT, EP_MOBILE, EP_CROWD, EP_NOVEH, EP_GROUPQ, EP_NOINT`.
+4. Plot the mean squared error as a function of the maximum tree depth.
+5. Which maximum tree depth would you choose based on the cross-validation results? Why?
+6. Fit a regression tree to the full data using the maximum tree depth you chose in the previous question.
+7. Plot the fitted tree. Summarize the tree in words. What variables seem to be the most important predictors of the number of per-capita COVID-19 deaths?
+8. Plot the predicted values against the true values. How much would you trust the predictions of the regression tree? Why?
